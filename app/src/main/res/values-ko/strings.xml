@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">미니멀로그</string>
+    <string name="label_app_logo">앱 로고</string>
+
+    <string name="nav_home">홈</string>
+    <string name="nav_log">로그</string>
+    <string name="nav_memory">추억</string>
+    <string name="nav_add">추가</string>
+    <string name="nav_settings">설정</string>
+
+    <string name="action_delete">삭제</string>
+    <string name="action_edit">편집</string>
+    <string name="action_save">저장</string>
+    <string name="action_cancel">취소</string>
+    <string name="action_see_more">더 보기 &gt;</string>
+    <string name="action_newest">최신순</string>
+    <string name="action_oldest">오래된순</string>
+    <string name="action_toggle_favorite">즐겨찾기 전환</string>
+
+    <string name="placeholder_memory_search">추억 검색</string>
+    <string name="placeholder_tag_input">태그</string>
+    <string name="placeholder_memory_title">제목</string>
+    <string name="placeholder_memory_description">설명(추억 노트)</string>
+
+    <string name="text_select_picture">사진을 선택하려면 탭하세요</string>
+    <string name="text_today_s_memory">오늘의 추억</string>
+    <string name="text_no_memory">추억을 찾을 수 없어요.</string>
+    <string name="text_slogan">더 가볍게, 더 자유롭게</string>
+    <string name="text_decision">번의 결정을 완료했습니다.</string>
+    <string name="text_slogan_detail">더 중요한 것을 위한 여유</string>
+    <string name="text_no_memory_detail">새 추억을 추가하거나 필터를 조정해 보세요.</string>
+    <string name="text_delete_confirm">이 추억을 삭제할까요?</string>
+    <string name="text_delete_confirm_detail">되돌릴 수 없습니다.</string>
+    <string name="text_language">언어</string>
+    <string name="text_privacy_policy">개인정보처리방침</string>
+    <string name="text_privacy_policy_detail">개인정보처리방침 열기</string>
+    <string name="text_google_drive">Google 드라이브</string>
+    <string name="text_status_connected">상태: 연결됨</string>
+    <string name="text_status_not_connected">상태: 연결되지 않음</string>
+    <string name="text_last_backup">마지막 백업:</string>
+    <string name="text_back_up_now">지금 백업</string>
+    <string name="text_restore">복원</string>
+    <string name="text_disconnect">연결 해제</string>
+    <string name="text_connect_google_drive">Google 드라이브와 연결</string>
+    <string name="text_back_up_detail">미니멀로그 데이터를 Google 드라이브에 백업하고 필요할 때 복원하세요.</string>
+</resources>

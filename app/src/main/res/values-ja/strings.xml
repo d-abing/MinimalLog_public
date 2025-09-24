@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">ミニマルログ</string>
+    <string name="label_app_logo">アプリのロゴ</string>
+
+    <string name="nav_home">ホーム</string>
+    <string name="nav_log">ログ</string>
+    <string name="nav_memory">思い出</string>
+    <string name="nav_add">追加</string>
+    <string name="nav_settings">設定</string>
+
+    <string name="action_delete">削除</string>
+    <string name="action_edit">編集</string>
+    <string name="action_save">保存</string>
+    <string name="action_cancel">キャンセル</string>
+    <string name="action_see_more">もっと見る &gt;</string>
+    <string name="action_newest">新しい順</string>
+    <string name="action_oldest">古い順</string>
+    <string name="action_toggle_favorite">お気に入り切替</string>
+
+    <string name="placeholder_memory_search">思い出を検索</string>
+    <string name="placeholder_tag_input">タグ</string>
+    <string name="placeholder_memory_title">タイトル</string>
+    <string name="placeholder_memory_description">説明（思い出ノート）</string>
+
+    <string name="text_select_picture">写真をタップして選択</string>
+    <string name="text_today_s_memory">今日の思い出</string>
+    <string name="text_no_memory">思い出が見つかりません。</string>
+    <string name="text_slogan">軽やかに、もっと自由に</string>
+    <string name="text_decision">件の決定を完了しました</string>
+    <string name="text_slogan_detail">大切なことのための余白を。</string>
+    <string name="text_no_memory_detail">新しい思い出を追加するか、フィルターを調整してください。</string>
+    <string name="text_delete_confirm">この思い出を削除しますか？</string>
+    <string name="text_delete_confirm_detail">この操作は取り消せません。</string>
+    <string name="text_language">言語</string>
+    <string name="text_privacy_policy">プライバシーポリシー</string>
+    <string name="text_privacy_policy_detail">プライバシーポリシーを開く</string>
+    <string name="text_google_drive">Google ドライブ</string>
+    <string name="text_status_connected">ステータス：接続済み</string>
+    <string name="text_status_not_connected">ステータス：未接続</string>
+    <string name="text_last_backup">最後のバックアップ：</string>
+    <string name="text_back_up_now">今すぐバックアップ</string>
+    <string name="text_restore">復元</string>
+    <string name="text_disconnect">接続解除</string>
+    <string name="text_connect_google_drive">Google ドライブと接続</string>
+    <string name="text_back_up_detail">ミニマルログのデータを Google ドライブにバックアップし、必要に応じて復元できます。</string>
+</resources>
