@@ -28,24 +28,12 @@ android {
 
     buildTypes {
         debug {
-             manifestPlaceholders["ADMOB_APP_ID"] = "ca-app-pub-3940256099942544~3347511713"
-             buildConfigField(
-                            "String",
-                            "ADMOB_BANNER_ID",
-                            "\"ca-app-pub-3940256099942544/6300978111\""
-                        )
             isMinifyEnabled = false
             applicationIdSuffix = ".debug"
             versionNameSuffix = "-debug"
         }
 
         release {
-             manifestPlaceholders["ADMOB_APP_ID"] = project.findProperty("ADMOB_APP_ID")?.toString() ?: ""
-             buildConfigField(
-                            "String",
-                            "ADMOB_BANNER_ID",
-                            "\"${project.findProperty("ADMOB_BANNER_ID") ?: ""}\""
-                        )
             isMinifyEnabled = true
             isShrinkResources = true
             proguardFiles(
@@ -117,6 +105,9 @@ dependencies {
 
     // Coroutine
     implementation(libs.jetbrains.kotlinx.coroutines.play.services)
+
+    // App Restart
+    implementation(libs.process.phoenix)
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)

@@ -90,10 +90,10 @@ fun SettingsScreen(
                 vm.onGoogleSignedIn(account) // ← 여기서 busy=false로 내려주거나 다음 단계 진행
             } else {
                 // 스코프 미부여면 다시 signInOptions로 재시도(아래 launchSignIn 호출)
-                Log.e("SignIn", "Missing DRIVE_APPDATA scope; relaunching sign-in...")
+                // Log.e("SignIn", "Missing DRIVE_APPDATA scope; relaunching sign-in...")
             }
         } catch (e: ApiException) {
-            Log.e("SignIn", "GoogleSignIn failed: status=${e.statusCode}, msg=${e.message}", e)
+            // Log.e("SignIn", "GoogleSignIn failed: status=${e.statusCode}, msg=${e.message}", e)
         }
     }
 
@@ -128,7 +128,9 @@ fun SettingsScreen(
                     .fillMaxWidth()
                     .clip(RoundedCornerShape(12.dp))
                     .clickable {
-                        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(""))
+                        val intent = Intent(Intent.ACTION_VIEW,
+                            Uri.parse("https://aubecompany.blogspot.com/2025/09/privacy-policy-for-minimallog.html")
+                        )
                         context.startActivity(intent)
                     }
                     .background(MaterialTheme.colorScheme.primaryContainer)
@@ -152,7 +154,10 @@ fun SettingsScreen(
                         style = MaterialTheme.typography.bodyMedium
                     )
                     driveState.lastBackup?.let {
-                        Text( stringResource(R.string.text_last_backup) + it,
+                        val kst = java.time.Instant.ofEpochMilli(it).atZone(java.time.ZoneId.of("Asia/Seoul"))
+                        val text = kst.format(java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"))
+
+                        Text( stringResource(R.string.text_last_backup) + text,
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSecondary)
                     }

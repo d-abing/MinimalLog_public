@@ -17,7 +17,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
-import com.aube.minimallog.BuildConfig
 import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.AdSize
 import com.google.android.gms.ads.AdView
@@ -78,8 +77,4 @@ private tailrec fun Context.findActivity(): Activity {
         is android.content.ContextWrapper -> baseContext.findActivity()
         else -> throw IllegalStateException("Activity not found from context.")
     }
-}
-
-object AdIds {
-    fun banner(): String = BuildConfig.ADMOB_BANNER_ID
 }

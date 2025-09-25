@@ -9,6 +9,7 @@ import com.aube.minimallog.presentation.model.DriveState
 import com.aube.minimallog.presentation.ui.screens.LanguageOption
 import com.aube.minimallog.presentation.util.AppLocaleManager
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
+import com.jakewharton.processphoenix.ProcessPhoenix
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
@@ -41,7 +42,6 @@ class SettingsViewModel @Inject constructor(
     val drive: StateFlow<DriveState> = _drive
 
     init {
-        // 부팅 시 연결 여부 복원
         viewModelScope.launch {
             val acc = repo.restoreAccountName()
             _drive.update { it.copy(connected = acc != null, accountName = acc, lastBackup = repo.restoreLastBackupTime()) }
@@ -98,6 +98,7 @@ class SettingsViewModel @Inject constructor(
                 repo.restoreLatest(account)
             }.onSuccess {
                 _drive.update { it.copy(busy = false) }
+                ProcessPhoenix.triggerRebirth(context)
             }.onFailure { e ->
                 _drive.update { it.copy(busy = false, error = e.message) }
             }

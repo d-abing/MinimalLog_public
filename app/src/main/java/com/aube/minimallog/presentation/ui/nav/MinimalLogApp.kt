@@ -25,7 +25,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.rememberNavController
 import com.aube.minimallog.R
-import com.aube.minimallog.presentation.ui.component.AdIds
 import com.aube.minimallog.presentation.ui.component.AdaptiveBanner
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -63,7 +62,7 @@ fun MinimalLogApp() {
                 AdaptiveBanner(
                     modifier = Modifier
                         .fillMaxWidth(),
-                    adUnitId = AdIds.banner()
+                    adUnitId = stringResource(R.string.ad_unit_id_banner)
                 )
                 MinimalLogBottomBar(
                     navController = navController,

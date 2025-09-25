@@ -13,4 +13,6 @@
 .externalNativeBuild
 .cxx
 local.properties
-gradle.properties
+/app/src/main/res/values/secrets.xml
+/app/src/main/res/values-ja/secrets.xml
+/app/src/main/res/values-ko/secrets.xml

@@ -57,7 +57,7 @@ class MemoryRepositoryImpl(
     override suspend fun delete(id: Long) {
         val entity = dao.getByIdOnce(id)
         // 이미지 먼저 정리(실패해도 진행)
-        imageStorage.deleteFile(entity?.imagePath)
+        val success = imageStorage.deleteFile(entity?.imagePath)
         // DB 삭제
         dao.deleteById(id)
     }
