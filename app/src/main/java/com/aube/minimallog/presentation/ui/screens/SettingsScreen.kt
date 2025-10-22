@@ -3,7 +3,6 @@ package com.aube.minimallog.presentation.ui.screens
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
-import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
@@ -56,13 +55,6 @@ enum class LanguageOption(val tag: String, val label: String) {
     JA("ja", "日本語");
 }
 
-data class DriveState(
-    val isConnected: Boolean,
-    val accountEmail: String? = null,
-    val lastBackupAt: String? = null,  // "2025-09-22 13:05" 같은 표시용 문자열
-    val isWorking: Boolean = false     // 진행중 스피너 제어
-)
-
 // --- Screen ------------------------------------------------------------------
 
 @Composable
@@ -87,9 +79,8 @@ fun SettingsScreen(
                 Scope(DriveScopes.DRIVE_APPDATA)
             )
             if (hasDriveScope) {
-                vm.onGoogleSignedIn(account) // ← 여기서 busy=false로 내려주거나 다음 단계 진행
+                vm.onGoogleSignedIn(account)
             } else {
-                // 스코프 미부여면 다시 signInOptions로 재시도(아래 launchSignIn 호출)
                 // Log.e("SignIn", "Missing DRIVE_APPDATA scope; relaunching sign-in...")
             }
         } catch (e: ApiException) {
@@ -154,8 +145,13 @@ fun SettingsScreen(
                         style = MaterialTheme.typography.bodyMedium
                     )
                     driveState.lastBackup?.let {
-                        val kst = java.time.Instant.ofEpochMilli(it).atZone(java.time.ZoneId.of("Asia/Seoul"))
-                        val text = kst.format(java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"))
+                        val localZone = java.time.ZoneId.systemDefault()
+                        val formatter = java.time.format.DateTimeFormatter
+                            .ofPattern("yyyy-MM-dd HH:mm", java.util.Locale.getDefault())
+
+                        val text = java.time.Instant.ofEpochMilli(it)
+                            .atZone(localZone)
+                            .format(formatter)
 
                         Text( stringResource(R.string.text_last_backup) + text,
                             style = MaterialTheme.typography.bodySmall,

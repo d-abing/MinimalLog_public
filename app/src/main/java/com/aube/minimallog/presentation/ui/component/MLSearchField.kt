@@ -1,9 +1,9 @@
 package com.aube.minimallog.presentation.ui.component
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
@@ -20,8 +20,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.unit.dp
+import androidx.compose.ui.tooling.preview.Preview
 import com.aube.minimallog.R
+import com.aube.minimallog.ui.theme.MinimalLogTheme
 
 @Composable
 fun RowScope.MLSearchField(
@@ -69,9 +70,20 @@ fun RowScope.MLSearchField(
         )
 
         HorizontalDivider(
-            modifier = Modifier
-                    .padding(start = 16.dp),
             color = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)
         )
+    }
+}
+
+@Preview
+@Composable
+private fun MLSearchFieldPreview() {
+    MinimalLogTheme {
+        Row() {
+            MLSearchField(
+                searchQuery = "",
+                onSearchQueryChanged = {}
+            )
+        }
     }
 }

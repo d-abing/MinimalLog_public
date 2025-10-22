@@ -5,6 +5,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
@@ -33,6 +34,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -64,16 +66,17 @@ fun MemoryScreen(
 
     item?.let { item ->
 
-        var showDeleteConfirm by remember { mutableStateOf(false) }
+        var showDeleteConfirm by rememberSaveable { mutableStateOf(false) }
         val dateText = remember(item.date) {
             DateTimeFormatter.ofPattern("LLLL d, yyyy", Locale.getDefault()).format(item.date)
         }
+
         Column(
             modifier
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState())
         ) {
-            // Hero Image
+            // Image
             if (item.imageUrl != null) {
                 AsyncImage(
                     model = if (item.imageUrl.startsWith("/")) File(item.imageUrl) else item.imageUrl,
@@ -92,7 +95,6 @@ fun MemoryScreen(
                         .background(MaterialTheme.colorScheme.tertiary),
                     contentAlignment = Alignment.Center
                 ) {
-
                     AsyncImage(
                         model = R.drawable.app_logo,
                         contentDescription = stringResource(R.string.label_app_logo),
@@ -195,20 +197,17 @@ fun MemoryScreen(
 
 @Composable
 private fun FlowTagChips(tags: List<String>) {
-    // 간단한 FlowRow 대체 (Compose 1.5+의 FlowRow 사용 가능하면 교체)
-    val rows = tags.chunked(3)
-    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        rows.forEach { row ->
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                row.forEach { tag ->
-                    Box(
-                        modifier = Modifier
-                            .clip(RoundedCornerShape(50))
-                            .background(MaterialTheme.colorScheme.secondary)
-                            .padding(horizontal = 10.dp, vertical = 6.dp)
-                    ) { Text(tag, style = MaterialTheme.typography.labelMedium) }
-                }
-            }
+    FlowRow(
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+        tags.forEach { tag ->
+            Box(
+                modifier = Modifier
+                    .clip(RoundedCornerShape(50))
+                    .background(MaterialTheme.colorScheme.secondary)
+                    .padding(horizontal = 10.dp, vertical = 6.dp)
+            ) { Text(tag, style = MaterialTheme.typography.labelMedium) }
         }
     }
 }

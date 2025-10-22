@@ -17,7 +17,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -44,7 +44,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
@@ -143,10 +142,10 @@ fun LogScreen(
                 item(key = "header-$ym") {
                     MonthHeader(ym = ym)
                 }
-                itemsIndexed(
+                items(
                     items = items,
-                    key = { _, item -> item.id }
-                ) { _, item ->
+                    key = { item -> item.id }
+                ) { item ->
                     MemoryRow(
                         item = item,
                         onClick = { onMemoryClick(item.id) },
@@ -419,42 +418,4 @@ private fun EmptyState() {
             color = Color(0xFF7D7A6F)
         )
     }
-}
-
-@Composable
-@Preview(showBackground = true)
-fun PreviewLogScreen() {
-    val dummyMemories = listOf(
-        MemoryItem(
-            id = 1,
-            title = "Old Sneakers",
-            description = "These sneakers carried me through countless journeys in college.",
-            imageUrl = "https://picsum.photos/200/200?1",
-            date = LocalDate.of(2025, 9, 20),
-            tags = listOf("Shoes", "College"),
-            isFavorite = true
-        ),
-        MemoryItem(
-            id = 2,
-            title = "First Guitar",
-            description = "My very first acoustic guitar. A bit scratched but full of stories.",
-            imageUrl = "https://picsum.photos/200/200?2",
-            date = LocalDate.of(2025, 9, 18),
-            tags = listOf("Music", "Hobby"),
-            isFavorite = false
-        ),
-        MemoryItem(
-            id = 3,
-            title = "Family Mug",
-            description = "Gifted by my sister on her trip to London. Still love the design.",
-            imageUrl = "https://picsum.photos/200/200?3",
-            date = LocalDate.of(2025, 8, 5),
-            tags = listOf("Gift", "Family"),
-            isFavorite = false
-        )
-    )
-
-    LogScreen(
-        onMemoryClick = { },
-    )
 }

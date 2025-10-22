@@ -18,8 +18,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
@@ -28,6 +28,7 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
@@ -44,7 +45,6 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -82,8 +82,8 @@ fun AddScreen(
     var date by rememberSaveable { mutableStateOf(LocalDate.now()) }
     var isFavorite by rememberSaveable { mutableStateOf(false) }
     var tags by rememberSaveable { mutableStateOf(listOf<String>()) }
-    var isFocused by remember { mutableStateOf(false) }
-    var prefilled by remember { mutableStateOf(false) }
+    var isFocused by rememberSaveable { mutableStateOf(false) }
+    var prefilled by rememberSaveable { mutableStateOf(false) }
 
     val item by vm.editTarget.collectAsState()
 
@@ -112,13 +112,10 @@ fun AddScreen(
         vm.events.collectLatest { ev ->
             when (ev) {
                 is MemoryViewModel.Event.Saved -> {
-                    // TODO 스낵바 등
                     onSavedNavigateBack()
                 }
-                is MemoryViewModel.Event.Error -> {
-                    // TODO 스낵바 등
-                }
-                else -> {}
+                is MemoryViewModel.Event.Error -> {}
+                is MemoryViewModel.Event.Deleted -> {}
             }
         }
     }
@@ -332,18 +329,14 @@ private fun ColumnScope.ImagePickerCard(
                         .fillMaxWidth()
                         .aspectRatio(1f)
                 )
-                // Clear button
-                Icon(
-                    tint = MaterialTheme.colorScheme.onBackground,
-                    imageVector = Icons.Default.Close,
-                    contentDescription = stringResource(R.string.action_delete),
-                    modifier = Modifier
-                        .size(50.dp)
-                        .align(Alignment.TopStart)
-                        .clip(RoundedCornerShape(16.dp))
-                        .clickable { onClear() }
-                        .padding(8.dp)
-                )
+
+                IconButton(
+                    onClick = onClear,
+                    modifier = Modifier.align(Alignment.TopStart).padding(12.dp)
+                        .background(MaterialTheme.colorScheme.tertiary.copy(0.4f), CircleShape),
+                ) {
+                    Icon(Icons.Default.Close, contentDescription = stringResource(R.string.action_delete))
+                }
             }
         }
     }
