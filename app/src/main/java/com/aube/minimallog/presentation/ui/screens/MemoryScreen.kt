@@ -1,12 +1,10 @@
 package com.aube.minimallog.presentation.ui.screens
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
@@ -17,19 +15,14 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Delete
-import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -47,6 +40,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import com.aube.minimallog.R
 import com.aube.minimallog.presentation.model.MemoryItem
+import com.aube.minimallog.presentation.ui.nav.MemoryTopBarActions
 import com.aube.minimallog.presentation.viewmodel.MemoryViewModel
 import java.io.File
 import java.time.format.DateTimeFormatter
@@ -59,6 +53,7 @@ fun MemoryScreen(
     modifier: Modifier = Modifier,
     onDelete: () -> Unit,
     onEdit: (MemoryItem) -> Unit,
+    onTopBarActionsChange: (MemoryTopBarActions?) -> Unit,
     vm: MemoryViewModel = hiltViewModel()
 ) {
 
@@ -67,6 +62,15 @@ fun MemoryScreen(
     item?.let { item ->
 
         var showDeleteConfirm by rememberSaveable { mutableStateOf(false) }
+        DisposableEffect(item) {
+            onTopBarActionsChange(
+                MemoryTopBarActions(
+                    onDelete = { showDeleteConfirm = true },
+                    onEdit = { onEdit(item) },
+                )
+            )
+            onDispose { onTopBarActionsChange(null) }
+        }
         val dateText = remember(item.date) {
             DateTimeFormatter.ofPattern("LLLL d, yyyy", Locale.getDefault()).format(item.date)
         }
@@ -77,9 +81,11 @@ fun MemoryScreen(
                 .verticalScroll(rememberScrollState())
         ) {
             // Image
-            if (item.imageUrl != null) {
+            if (item.imageBytes != null || item.imageUrl != null) {
                 AsyncImage(
-                    model = if (item.imageUrl.startsWith("/")) File(item.imageUrl) else item.imageUrl,
+                    model = item.imageBytes ?: item.imageUrl?.let {
+                        if (it.startsWith("/")) File(it) else it
+                    },
                     contentDescription = item.title,
                     contentScale = ContentScale.Crop,
                     modifier = Modifier
@@ -129,40 +135,6 @@ fun MemoryScreen(
                 if (item.tags.isNotEmpty()) {
                     Spacer(Modifier.height(14.dp))
                     FlowTagChips(tags = item.tags)
-                }
-
-                Spacer(Modifier.height(24.dp))
-
-                // Bottom actions in content (Edit / Delete / Share)
-                Row(
-                    horizontalArrangement = Arrangement.SpaceEvenly,
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Spacer(Modifier.weight(0.5f))
-                    OutlinedButton(
-                        onClick = { showDeleteConfirm = true },
-                        border = BorderStroke(0.3.dp, MaterialTheme.colorScheme.onSecondary),
-                        modifier = Modifier.weight(1f),
-                    ) {
-                        Icon(
-                            imageVector = Icons.Outlined.Delete,
-                            contentDescription = stringResource(R.string.action_delete),
-                            modifier = Modifier.size(ButtonDefaults.IconSize)
-                        )
-                    }
-                    Spacer(Modifier.weight(0.2f))
-                    OutlinedButton(
-                        onClick = { onEdit(item) },
-                        border = BorderStroke(0.3.dp, MaterialTheme.colorScheme.onSecondary),
-                        modifier = Modifier.weight(1f)
-                    ) {
-                        Icon(
-                            imageVector = Icons.Outlined.Edit,
-                            contentDescription = stringResource(R.string.action_edit),
-                            modifier = Modifier.size(ButtonDefaults.IconSize)
-                        )
-                    }
-                    Spacer(Modifier.weight(0.5f))
                 }
 
                 Spacer(Modifier.height(16.dp))

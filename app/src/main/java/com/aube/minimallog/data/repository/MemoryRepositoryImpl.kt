@@ -21,6 +21,7 @@ class MemoryRepositoryImpl(
             title = memory.title,
             description = memory.description,
             imagePath = memory.imagePath,
+            imageBytes = memory.imageBytes,
             epochDay = memory.date.toEpochDay(),
             tagsCsv = memory.tags.joinToString(","),
             isFavorite = memory.isFavorite

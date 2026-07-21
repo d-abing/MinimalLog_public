@@ -20,6 +20,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FilledTonalButton
@@ -27,9 +28,13 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -65,6 +70,8 @@ fun SettingsScreen(
     val context = LocalContext.current
     val driveState by vm.drive.collectAsState()
     val currentLanguage by vm.currentLanguage.collectAsState()
+    var showBackupDialog by rememberSaveable { mutableStateOf(false) }
+    var showRestoreDialog by rememberSaveable { mutableStateOf(false) }
 
     val signInLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.StartActivityForResult()
@@ -136,65 +143,164 @@ fun SettingsScreen(
             }
         }
 
-        // Google Drive Section
         SettingCard(title = stringResource(R.string.text_google_drive)) {
-            Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                if (driveState.connected) {
-                    Text(
-                        text = stringResource(R.string.text_status_connected) + (driveState.accountName?.let { " ($it)" } ?: ""),
-                        style = MaterialTheme.typography.bodyMedium
-                    )
-                    driveState.lastBackup?.let {
-                        val localZone = java.time.ZoneId.systemDefault()
-                        val formatter = java.time.format.DateTimeFormatter
-                            .ofPattern("yyyy-MM-dd HH:mm", java.util.Locale.getDefault())
+            DriveSettingsRow(
+                connected = driveState.connected,
+                accountName = driveState.accountName,
+                lastBackup = driveState.lastBackup,
+                busy = driveState.busy,
+                onConnect = { launchSignIn(context) },
+                onBackup = { showBackupDialog = true },
+                onRestore = { showRestoreDialog = true },
+                onDisconnect = { vm.disconnect(context) },
+            )
+        }
+    }
 
-                        val text = java.time.Instant.ofEpochMilli(it)
-                            .atZone(localZone)
-                            .format(formatter)
-
-                        Text( stringResource(R.string.text_last_backup) + text,
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSecondary)
-                    }
-                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        FilledTonalButton(
-                            onClick = vm::backupNow,
-                            enabled = !driveState.busy
-                        ) {
-                            if (driveState.busy) CircularProgressIndicator(modifier = Modifier.size(16.dp), strokeWidth = 2.dp)
-                            Spacer(Modifier.width(6.dp))
-                            Text(stringResource(R.string.text_back_up_now))
-                        }
-                        OutlinedButton(
-                            onClick = vm::restoreLatest,
-                            enabled = !driveState.busy
-                        ) { Text(stringResource(R.string.text_restore)) }
-                        OutlinedButton(
-                            onClick = {
-                                vm.disconnect(context)
-                            },
-                            enabled = !driveState.busy
-                        ) { Text(stringResource(R.string.text_disconnect)) }
-                    }
-                } else {
-                    Text(stringResource(R.string.text_status_not_connected), style = MaterialTheme.typography.bodyMedium)
-                    Button(
-                        onClick = {
-                            launchSignIn(context)
-                        },
-                        enabled = !driveState.busy
-                    ) {
-                        if (driveState.busy) CircularProgressIndicator(modifier = Modifier.size(16.dp), strokeWidth = 2.dp)
-                        Spacer(Modifier.width(6.dp))
-                        Text(stringResource(R.string.text_connect_google_drive))
-                    }
+    if (showBackupDialog) {
+        AlertDialog(
+            onDismissRequest = { showBackupDialog = false },
+            title = { Text(stringResource(R.string.text_back_up_now)) },
+            text = { Text(stringResource(R.string.backup_confirm_message)) },
+            containerColor = MaterialTheme.colorScheme.primaryContainer,
+            confirmButton = {
+                TextButton(onClick = {
+                    showBackupDialog = false
+                    vm.backupNow()
+                }) { Text(stringResource(R.string.action_confirm)) }
+            },
+            dismissButton = {
+                TextButton(onClick = { showBackupDialog = false }) {
+                    Text(stringResource(R.string.action_cancel))
                 }
+            },
+        )
+    }
+
+    if (showRestoreDialog) {
+        AlertDialog(
+            onDismissRequest = { showRestoreDialog = false },
+            title = { Text(stringResource(R.string.text_restore)) },
+            text = { Text(stringResource(R.string.restore_confirm_message)) },
+            containerColor = MaterialTheme.colorScheme.primaryContainer,
+            confirmButton = {
+                TextButton(onClick = {
+                    showRestoreDialog = false
+                    vm.restoreLatest()
+                }) { Text(stringResource(R.string.action_confirm)) }
+            },
+            dismissButton = {
+                TextButton(onClick = { showRestoreDialog = false }) {
+                    Text(stringResource(R.string.action_cancel))
+                }
+            },
+        )
+    }
+}
+
+@Composable
+private fun DriveSettingsRow(
+    connected: Boolean,
+    accountName: String?,
+    lastBackup: Long?,
+    busy: Boolean,
+    onConnect: () -> Unit,
+    onBackup: () -> Unit,
+    onRestore: () -> Unit,
+    onDisconnect: () -> Unit,
+) {
+    Column(
+        verticalArrangement = Arrangement.spacedBy(10.dp),
+    ) {
+        Text(
+            text = stringResource(R.string.text_back_up_detail),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+
+        if (connected) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(12.dp))
+                    .background(MaterialTheme.colorScheme.primaryContainer)
+                    .padding(12.dp),
+                verticalArrangement = Arrangement.spacedBy(4.dp),
+            ) {
                 Text(
-                    stringResource(R.string.text_back_up_detail),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSecondary
+                    text = stringResource(R.string.text_status_connected) +
+                        (accountName?.let { " ($it)" } ?: ""),
+                    style = MaterialTheme.typography.bodyMedium,
+                    fontWeight = FontWeight.Medium,
                 )
+                lastBackup?.let { timestamp ->
+                    val formatter = java.time.format.DateTimeFormatter
+                        .ofPattern("yyyy-MM-dd HH:mm", java.util.Locale.getDefault())
+                    val formatted = java.time.Instant.ofEpochMilli(timestamp)
+                        .atZone(java.time.ZoneId.systemDefault())
+                        .format(formatter)
+                    Text(
+                        text = stringResource(R.string.text_last_backup) + formatted,
+                        style = MaterialTheme.typography.bodySmall,
+                    )
+                }
+            }
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                FilledTonalButton(
+                    onClick = onBackup,
+                    enabled = !busy,
+                    modifier = Modifier.weight(1f),
+                ) {
+                    if (busy) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(16.dp),
+                            strokeWidth = 2.dp,
+                        )
+                    }
+                    Spacer(Modifier.width(6.dp))
+                    Text(stringResource(R.string.text_back_up_now))
+                }
+                OutlinedButton(
+                    onClick = onRestore,
+                    enabled = !busy,
+                    modifier = Modifier.weight(1f),
+                ) {
+                    Text(stringResource(R.string.text_restore))
+                }
+                OutlinedButton(
+                    onClick = onDisconnect,
+                    enabled = !busy,
+                    modifier = Modifier.weight(1f),
+                ) {
+                    Text(stringResource(R.string.text_disconnect))
+                }
+            }
+        } else {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(12.dp))
+                    .background(MaterialTheme.colorScheme.primaryContainer)
+                    .padding(12.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
+            ) {
+                Text(
+                    text = stringResource(R.string.text_status_not_connected),
+                    style = MaterialTheme.typography.bodyMedium,
+                    modifier = Modifier.weight(1f),
+                )
+                Button(onClick = onConnect, enabled = !busy) {
+                    if (busy) {
+                        CircularProgressIndicator(Modifier.size(16.dp), strokeWidth = 2.dp)
+                        Spacer(Modifier.width(6.dp))
+                    }
+                    Text(stringResource(R.string.text_connect_google_drive))
+                }
             }
         }
     }

@@ -12,6 +12,11 @@ class ImageStorage(
     private val appContext: Context,
     private val resolver: ContentResolver = appContext.contentResolver
 ) {
+    suspend fun readBytes(uri: Uri): ByteArray = withContext(Dispatchers.IO) {
+        resolver.openInputStream(uri)?.use { it.readBytes() }
+            ?: error("Could not read image stream")
+    }
+
     suspend fun persist(uri: Uri): String = withContext(Dispatchers.IO) {
         val dir = File(appContext.filesDir, "images").apply { if (!exists()) mkdirs() }
         val outFile = File(dir, "${UUID.randomUUID()}.jpg")

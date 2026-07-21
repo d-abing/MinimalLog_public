@@ -44,4 +44,7 @@
     <string name="text_disconnect">接続解除</string>
     <string name="text_connect_google_drive">Google ドライブと接続</string>
     <string name="text_back_up_detail">ミニマルログのデータを Google ドライブにバックアップし、必要に応じて復元できます。</string>
+    <string name="action_confirm">確認</string>
+    <string name="backup_confirm_message">現在のデータを Google ドライブにバックアップしますか？</string>
+    <string name="restore_confirm_message">最新のバックアップを復元しますか？現在のデータが置き換えられる場合があります。</string>
 </resources>

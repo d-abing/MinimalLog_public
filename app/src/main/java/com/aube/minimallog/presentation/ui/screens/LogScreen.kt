@@ -334,7 +334,7 @@ private fun MemoryRow(
             modifier = Modifier.fillMaxWidth()
         ) {
             // 썸네일
-            if (item.imageUrl == null) {
+            if (item.imageBytes == null && item.imageUrl == null) {
                 Box(
                     modifier = Modifier
                         .size(64.dp)
@@ -352,7 +352,7 @@ private fun MemoryRow(
                 }
             } else {
                 AsyncImage(
-                    model = item.imageUrl,
+                    model = item.imageBytes ?: item.imageUrl,
                     contentDescription = item.title,
                     contentScale = ContentScale.Crop,
                     modifier = Modifier

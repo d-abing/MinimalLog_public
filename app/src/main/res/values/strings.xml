@@ -12,6 +12,7 @@
     <string name="action_edit">Edit</string>
     <string name="action_save">Save</string>
     <string name="action_cancel">Cancel</string>
+    <string name="action_confirm">OK</string>
     <string name="action_see_more">See more &gt;</string>
     <string name="action_newest">Newest</string>
     <string name="action_oldest">Oldest</string>
@@ -43,4 +44,6 @@
     <string name="text_disconnect">Disconnect</string>
     <string name="text_connect_google_drive">Connect Google Drive</string>
     <string name="text_back_up_detail">Back up your MinimalLog data to Google Drive and restore when needed.</string>
+    <string name="backup_confirm_message">Back up your current data to Google Drive?</string>
+    <string name="restore_confirm_message">Restore the latest backup? Current data may be replaced.</string>
 </resources>

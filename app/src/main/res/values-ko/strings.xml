@@ -44,4 +44,7 @@
     <string name="text_disconnect">연결 해제</string>
     <string name="text_connect_google_drive">Google 드라이브와 연결</string>
     <string name="text_back_up_detail">미니멀로그 데이터를 Google 드라이브에 백업하고 필요할 때 복원하세요.</string>
+    <string name="action_confirm">확인</string>
+    <string name="backup_confirm_message">현재 데이터를 Google 드라이브에 백업할까요?</string>
+    <string name="restore_confirm_message">최근 백업을 복원할까요? 현재 데이터가 대체될 수 있습니다.</string>
 </resources>

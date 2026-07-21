@@ -1,6 +1,7 @@
 package com.aube.minimallog.data.repository
 
 import android.content.Context
+import com.aube.minimallog.data.database.MinimalLogDatabase
 import com.aube.minimallog.presentation.util.DriveServiceFactory
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
@@ -24,7 +25,8 @@ import java.util.zip.ZipOutputStream
 import javax.inject.Inject
 
 class DriveBackupRepository @Inject constructor(
-    @ApplicationContext private val context: Context
+    @ApplicationContext private val context: Context,
+    private val database: MinimalLogDatabase,
 ) {
     private val sp by lazy { context.getSharedPreferences("drive", Context.MODE_PRIVATE) }
 
@@ -55,6 +57,11 @@ class DriveBackupRepository @Inject constructor(
     // ---- 백업 ----
     suspend fun backupNow(accountName: String): Long = withContext(Dispatchers.IO) {
         val service = DriveServiceFactory.create(context, accountName)
+
+        migrateLegacyImagesToDatabase()
+        database.openHelper.writableDatabase
+            .query("PRAGMA wal_checkpoint(TRUNCATE)")
+            .close()
 
         // 1) ZIP 만들기
         val zip = makeBackupZip()
@@ -109,11 +116,32 @@ class DriveBackupRepository @Inject constructor(
 
         // ZIP 풀고 적용
         debugZipEntries(dest) // 필요 시 주석
+        database.close()
         restoreFromZip(dest)
         dest.delete()
 
         // DB 교체 직후 앱 재시작이 가장 안전.
         sp.edit().putBoolean("db_restored", true).apply()
+    }
+
+    private fun migrateLegacyImagesToDatabase() {
+        val db = database.openHelper.writableDatabase
+        db.query(
+            "SELECT id, imagePath FROM memories " +
+                "WHERE imageBytes IS NULL AND imagePath IS NOT NULL"
+        ).use { cursor ->
+            val idIndex = cursor.getColumnIndexOrThrow("id")
+            val pathIndex = cursor.getColumnIndexOrThrow("imagePath")
+            while (cursor.moveToNext()) {
+                val path = cursor.getString(pathIndex) ?: continue
+                val file = File(path)
+                if (!file.isFile) continue
+                db.execSQL(
+                    "UPDATE memories SET imageBytes = ? WHERE id = ?",
+                    arrayOf(file.readBytes(), cursor.getLong(idIndex)),
+                )
+            }
+        }
     }
 
     private fun makeBackupZip(): File {

@@ -2,6 +2,8 @@ package com.aube.minimallog.data.di
 
 import android.content.Context
 import androidx.room.Room
+import androidx.room.migration.Migration
+import androidx.sqlite.db.SupportSQLiteDatabase
 import com.aube.minimallog.data.database.ImageStorage
 import com.aube.minimallog.data.database.MinimalLogDatabase
 import com.aube.minimallog.data.database.dao.MemoryDao
@@ -27,10 +29,18 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 object AppModule {
 
+    private val MIGRATION_1_2 = object : Migration(1, 2) {
+        override fun migrate(db: SupportSQLiteDatabase) {
+            db.execSQL("ALTER TABLE memories ADD COLUMN imageBytes BLOB")
+        }
+    }
+
     @Provides
     @Singleton
     fun provideDb(@ApplicationContext ctx: Context): MinimalLogDatabase =
-        Room.databaseBuilder(ctx, MinimalLogDatabase::class.java, "minimallog.db").build()
+        Room.databaseBuilder(ctx, MinimalLogDatabase::class.java, "minimallog.db")
+            .addMigrations(MIGRATION_1_2)
+            .build()
 
     @Provides
     fun provideDao(db: MinimalLogDatabase): MemoryDao = db.memoryDao()
@@ -75,6 +85,9 @@ object AppModule {
     fun provideDeleteMemory(repo: MemoryRepository) = DeleteMemoryUseCase(repo)
 
     @Provides @Singleton
-    fun provideDriveBackupRepository(@ApplicationContext context: Context) = DriveBackupRepository(context)
+    fun provideDriveBackupRepository(
+        @ApplicationContext context: Context,
+        database: MinimalLogDatabase,
+    ) = DriveBackupRepository(context, database)
 
 }

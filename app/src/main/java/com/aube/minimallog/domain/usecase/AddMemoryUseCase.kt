@@ -14,16 +14,22 @@ class AddMemoryUseCase(
         title: String,
         description: String,
         imageUri: Uri?,
+        existingImageBytes: ByteArray? = null,
         date: java.time.LocalDate,
         tags: List<String>,
         isFavorite: Boolean
     ): Long {
-        val path: String? = if (imageUri != null) imageStorage.persist(imageUri) else null
+        val imageBytes = if (imageUri != null) {
+            imageStorage.readBytes(imageUri)
+        } else {
+            existingImageBytes
+        }
         val memory = Memory(
             id = id ?: 0L,
             title = title,
             description = description,
-            imagePath = path,
+            imagePath = null,
+            imageBytes = imageBytes,
             date = date,
             tags = tags,
             isFavorite = isFavorite
