@@ -10,7 +10,7 @@ plugins {
 
 android {
     namespace = "com.aube.minimallog"
-    compileSdk = 35
+    compileSdk = 36
 
     packaging {
         resources {
@@ -21,9 +21,9 @@ android {
     defaultConfig {
         applicationId = "com.aube.minimallog"
         minSdk = 28
-        targetSdk = 35
-        versionCode = 3
-        versionName = "1.2"
+        targetSdk = 36
+        versionCode = 4
+        versionName = "1.3"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
