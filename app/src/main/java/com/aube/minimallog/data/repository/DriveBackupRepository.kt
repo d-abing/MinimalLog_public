@@ -19,7 +19,9 @@ import java.io.FileOutputStream
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import java.util.zip.CRC32
 import java.util.zip.ZipEntry
+import java.util.zip.ZipFile
 import java.util.zip.ZipInputStream
 import java.util.zip.ZipOutputStream
 import javax.inject.Inject
@@ -58,13 +60,13 @@ class DriveBackupRepository @Inject constructor(
     suspend fun backupNow(accountName: String): Long = withContext(Dispatchers.IO) {
         val service = DriveServiceFactory.create(context, accountName)
 
-        migrateLegacyImagesToDatabase()
         database.openHelper.writableDatabase
             .query("PRAGMA wal_checkpoint(TRUNCATE)")
             .close()
 
         // 1) ZIP 만들기
         val zip = makeBackupZip()
+        validateBackupZip(zip)
 
         // 2) 업로드 (appDataFolder)
         val meta = com.google.api.services.drive.model.File().apply {
@@ -115,33 +117,13 @@ class DriveBackupRepository @Inject constructor(
         }
 
         // ZIP 풀고 적용
-        debugZipEntries(dest) // 필요 시 주석
+        validateDownloadedZip(dest)
         database.close()
         restoreFromZip(dest)
         dest.delete()
 
         // DB 교체 직후 앱 재시작이 가장 안전.
         sp.edit().putBoolean("db_restored", true).apply()
-    }
-
-    private fun migrateLegacyImagesToDatabase() {
-        val db = database.openHelper.writableDatabase
-        db.query(
-            "SELECT id, imagePath FROM memories " +
-                "WHERE imageBytes IS NULL AND imagePath IS NOT NULL"
-        ).use { cursor ->
-            val idIndex = cursor.getColumnIndexOrThrow("id")
-            val pathIndex = cursor.getColumnIndexOrThrow("imagePath")
-            while (cursor.moveToNext()) {
-                val path = cursor.getString(pathIndex) ?: continue
-                val file = File(path)
-                if (!file.isFile) continue
-                db.execSQL(
-                    "UPDATE memories SET imageBytes = ? WHERE id = ?",
-                    arrayOf(file.readBytes(), cursor.getLong(idIndex)),
-                )
-            }
-        }
     }
 
     private fun makeBackupZip(): File {
@@ -193,14 +175,16 @@ class DriveBackupRepository @Inject constructor(
                         name.startsWith("databases/") -> {
                             val dbName = name.removePrefix("databases/") // minimalog.db
                             if (dbName.isNotBlank()) {
-                                val dbFile = context.getDatabasePath(dbName)
+                                val dbRoot = context.getDatabasePath("dummy").parentFile
+                                    ?: error("Database directory is unavailable")
+                                val dbFile = safeTarget(dbRoot, dbName)
                                 writeEntry(zis, dbFile)
                             }
                         }
                         name.startsWith("files/") -> {
                             val rel = name.removePrefix("files/") // images/...
                             if (rel.isNotBlank()) {
-                                val fileTarget = File(context.filesDir, rel)
+                                val fileTarget = safeTarget(context.filesDir, rel)
                                 writeEntry(zis, fileTarget)
                             }
                         }
@@ -212,6 +196,15 @@ class DriveBackupRepository @Inject constructor(
                 entry = zis.nextEntry
             }
         }
+    }
+
+    private fun safeTarget(root: File, relativePath: String): File {
+        val target = File(root, relativePath)
+        val rootPath = root.canonicalFile.toPath()
+        check(target.canonicalFile.toPath().startsWith(rootPath)) {
+            "Unsafe backup entry: $relativePath"
+        }
+        return target
     }
 
     private fun writeEntry(zis: ZipInputStream, dest: File) {
@@ -237,12 +230,69 @@ class DriveBackupRepository @Inject constructor(
         }
     }
 
-    private fun debugZipEntries(zipFile: File) {
-        runCatching {
-            java.util.zip.ZipFile(zipFile).use { zf ->
-                val list = zf.entries().asSequence().map { it.name to it.size }.toList()
+    private fun validateBackupZip(zipFile: File) {
+        ZipFile(zipFile).use { zip ->
+            check(zip.getEntry("databases/minimallog.db") != null) {
+                "Backup does not contain minimallog.db"
+            }
+            val imageDir = File(context.filesDir, "images")
+            val referencedImages = mutableListOf<String>()
+            database.openHelper.readableDatabase
+                .query("SELECT imagePath FROM memories WHERE imagePath IS NOT NULL")
+                .use { cursor ->
+                    val pathIndex = cursor.getColumnIndexOrThrow("imagePath")
+                    while (cursor.moveToNext()) {
+                        referencedImages += File(cursor.getString(pathIndex)).name
+                    }
+                }
+            referencedImages.forEach { fileName ->
+                val image = File(imageDir, fileName)
+                check(image.isFile) { "Referenced image is missing: $fileName" }
+                check(zip.getEntry("files/images/$fileName") != null) {
+                    "Backup is missing referenced image: $fileName"
+                }
+            }
+            if (imageDir.exists()) {
+                imageDir.walkTopDown().filter { it.isFile }.forEach { image ->
+                    val relative = image.relativeTo(imageDir).invariantSeparatorsPath
+                    val entry = zip.getEntry("files/images/$relative")
+                        ?: error("Backup is missing image $relative")
+                    check(entry.size == image.length()) {
+                        "Backup image size mismatch: $relative"
+                    }
+                    check(entry.crc == crc32(image)) {
+                        "Backup image checksum mismatch: $relative"
+                    }
+                }
             }
         }
+    }
+
+    private fun validateDownloadedZip(zipFile: File) {
+        ZipFile(zipFile).use { zip ->
+            check(zip.getEntry("databases/minimallog.db") != null) {
+                "Downloaded backup does not contain minimallog.db"
+            }
+            val buffer = ByteArray(DEFAULT_BUFFER_SIZE)
+            zip.entries().asSequence().filterNot { it.isDirectory }.forEach { entry ->
+                zip.getInputStream(entry).use { input ->
+                    while (input.read(buffer) != -1) Unit
+                }
+            }
+        }
+    }
+
+    private fun crc32(file: File): Long {
+        val crc = CRC32()
+        FileInputStream(file).use { input ->
+            val buffer = ByteArray(DEFAULT_BUFFER_SIZE)
+            while (true) {
+                val count = input.read(buffer)
+                if (count < 0) break
+                crc.update(buffer, 0, count)
+            }
+        }
+        return crc.value
     }
 
     private fun timeStamp(): String =

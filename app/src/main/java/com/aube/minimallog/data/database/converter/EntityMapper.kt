@@ -10,7 +10,6 @@ object EntityMapper {
         title = e.title,
         description = e.description,
         imagePath = e.imagePath,
-        imageBytes = e.imageBytes,
         date = LocalDate.ofEpochDay(e.epochDay),
         tags = if (e.tagsCsv.isBlank()) emptyList() else e.tagsCsv.split(","),
         isFavorite = e.isFavorite

@@ -79,7 +79,6 @@ fun AddScreen(
     var title by rememberSaveable { mutableStateOf("") }
     var description by rememberSaveable { mutableStateOf("") }
     var imageUri by rememberSaveable { mutableStateOf<Uri?>(null) }
-    var existingImageBytes by remember { mutableStateOf<ByteArray?>(null) }
     var date by rememberSaveable { mutableStateOf(LocalDate.now()) }
     var isFavorite by rememberSaveable { mutableStateOf(false) }
     var tags by rememberSaveable { mutableStateOf(listOf<String>()) }
@@ -131,7 +130,6 @@ fun AddScreen(
                 if (pathOrUrl.startsWith("/")) Uri.fromFile(java.io.File(pathOrUrl))
                 else Uri.parse(pathOrUrl)
             }
-            existingImageBytes = item!!.imageBytes
             date = item!!.date
             isFavorite = item!!.isFavorite
             tags = item!!.tags
@@ -176,7 +174,6 @@ fun AddScreen(
                                             title = title.trim(),
                                             description = description.trim(),
                                             imageUri = imageUri,
-                                            imageBytes = existingImageBytes,
                                             date = date,
                                             tags = tags,
                                             isFavorite = isFavorite
@@ -201,12 +198,8 @@ fun AddScreen(
             // 이미지
             ImagePickerCard(
                 imageUri = imageUri,
-                imageBytes = existingImageBytes,
                 onPick = { cropLauncher.launch(cropRequest) },
-                onClear = {
-                    imageUri = null
-                    existingImageBytes = null
-                }
+                onClear = { imageUri = null }
             )
 
             // 제목
@@ -299,7 +292,6 @@ fun AddScreen(
 @Composable
 private fun ColumnScope.ImagePickerCard(
     imageUri: Uri?,
-    imageBytes: ByteArray?,
     onPick: () -> Unit,
     onClear: () -> Unit
 ) {
@@ -316,7 +308,7 @@ private fun ColumnScope.ImagePickerCard(
               .fillMaxWidth()
               .aspectRatio(1f)
         ) {
-            if (imageUri == null && imageBytes == null) {
+            if (imageUri == null) {
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -328,7 +320,7 @@ private fun ColumnScope.ImagePickerCard(
             } else {
                 AsyncImage(
                     model = ImageRequest.Builder(LocalContext.current)
-                        .data(imageUri ?: imageBytes)
+                        .data(imageUri)
                         .crossfade(true)
                         .build(),
                     contentDescription = null,

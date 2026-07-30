@@ -9,7 +9,6 @@ data class MemoryEntity(
     val title: String,
     val description: String,
     val imagePath: String?,        // 앱 내부 저장소 경로 (nullable)
-    val imageBytes: ByteArray? = null,
     val epochDay: Long,            // LocalDate -> epochDay 로 저장
     val tagsCsv: String,           // "tag1,tag2,tag3"
     val isFavorite: Boolean

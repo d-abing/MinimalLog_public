@@ -93,7 +93,6 @@ class MemoryViewModel @Inject constructor(
                 title = memoryDraft.title,
                 description = memoryDraft.description,
                 imageUri = memoryDraft.imageUri,
-                existingImageBytes = memoryDraft.imageBytes,
                 date = memoryDraft.date,
                 tags = memoryDraft.tags,
                 isFavorite = memoryDraft.isFavorite

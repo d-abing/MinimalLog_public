@@ -8,7 +8,6 @@ data class MemoryDraft(
     val title: String,
     val description: String,
     val imageUri: Uri?,
-    val imageBytes: ByteArray? = null,
     val date: LocalDate,
     val tags: List<String>,
     val isFavorite: Boolean

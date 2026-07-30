@@ -7,7 +7,7 @@ import com.aube.minimallog.data.database.converter.Converters
 import com.aube.minimallog.data.database.dao.MemoryDao
 import com.aube.minimallog.data.model.MemoryEntity
 
-@Database(entities = [MemoryEntity::class], version = 2, exportSchema = false)
+@Database(entities = [MemoryEntity::class], version = 3, exportSchema = false)
 @TypeConverters(Converters::class)
 abstract class MinimalLogDatabase : RoomDatabase() {
     abstract fun memoryDao(): MemoryDao

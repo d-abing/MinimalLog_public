@@ -81,11 +81,9 @@ fun MemoryScreen(
                 .verticalScroll(rememberScrollState())
         ) {
             // Image
-            if (item.imageBytes != null || item.imageUrl != null) {
+            if (item.imageUrl != null) {
                 AsyncImage(
-                    model = item.imageBytes ?: item.imageUrl?.let {
-                        if (it.startsWith("/")) File(it) else it
-                    },
+                    model = if (item.imageUrl.startsWith("/")) File(item.imageUrl) else item.imageUrl,
                     contentDescription = item.title,
                     contentScale = ContentScale.Crop,
                     modifier = Modifier

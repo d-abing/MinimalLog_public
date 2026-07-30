@@ -21,7 +21,6 @@ class MemoryRepositoryImpl(
             title = memory.title,
             description = memory.description,
             imagePath = memory.imagePath,
-            imageBytes = memory.imageBytes,
             epochDay = memory.date.toEpochDay(),
             tagsCsv = memory.tags.joinToString(","),
             isFavorite = memory.isFavorite
@@ -30,24 +29,24 @@ class MemoryRepositoryImpl(
     }
 
     override fun observeAll(): Flow<List<Memory>> =
-        dao.observeAll().map { it.map(EntityMapper::toDomain) }
+        dao.observeAll().map { it.map(::toDomain) }
 
     override fun observeById(id: Long): Flow<Memory?> =
-        dao.observeById(id).map { it?.let(EntityMapper::toDomain) }
+        dao.observeById(id).map { it?.let(::toDomain) }
 
     override fun observeToday(date: LocalDate): Flow<Memory?> {
         val mm = "%02d".format(date.monthValue)
         val dd = "%02d".format(date.dayOfMonth)
-        return dao.observeToday(mm, dd).map { it?.let(EntityMapper::toDomain) }
+        return dao.observeToday(mm, dd).map { it?.let(::toDomain) }
     }
 
     override fun observeFavorites(): Flow<List<Memory>> =
-        dao.observeFavorites().map { it.map(EntityMapper::toDomain) }
+        dao.observeFavorites().map { it.map(::toDomain) }
 
     override fun observeSearch(query: String): Flow<List<Memory>> {
         val q = query.trim()
         val like = "%$q%"
-        return dao.observeSearch(q, like).map { it.map(EntityMapper::toDomain) }
+        return dao.observeSearch(q, like).map { it.map(::toDomain) }
     }
 
     override suspend fun toggleFavorite(id: Long): Boolean {
@@ -62,4 +61,9 @@ class MemoryRepositoryImpl(
         // DB 삭제
         dao.deleteById(id)
     }
+
+    private fun toDomain(entity: MemoryEntity): Memory =
+        EntityMapper.toDomain(entity).copy(
+            imagePath = imageStorage.resolve(entity.imagePath)?.absolutePath,
+        )
 }

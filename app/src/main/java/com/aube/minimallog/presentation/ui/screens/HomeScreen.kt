@@ -76,11 +76,9 @@ fun HomeScreen(
                         contentAlignment = Alignment.Center
                     ) {
                         AsyncImage(
-                            model = todayMemory.imageBytes
-                                ?: todayMemory.imageUrl?.let { File(it) }
-                                ?: R.drawable.app_logo,
+                            model = todayMemory.imageUrl?.let { File(it) } ?: R.drawable.app_logo,
                             modifier = Modifier.then(
-                                if (todayMemory.imageBytes == null && todayMemory.imageUrl == null) Modifier.size(100.dp)
+                                if (todayMemory.imageUrl == null) Modifier.size(100.dp)
                                 else Modifier.fillMaxSize()
                             ),
                             contentDescription = todayMemory.title,

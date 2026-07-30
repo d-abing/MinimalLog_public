@@ -12,11 +12,6 @@ class ImageStorage(
     private val appContext: Context,
     private val resolver: ContentResolver = appContext.contentResolver
 ) {
-    suspend fun readBytes(uri: Uri): ByteArray = withContext(Dispatchers.IO) {
-        resolver.openInputStream(uri)?.use { it.readBytes() }
-            ?: error("Could not read image stream")
-    }
-
     suspend fun persist(uri: Uri): String = withContext(Dispatchers.IO) {
         val dir = File(appContext.filesDir, "images").apply { if (!exists()) mkdirs() }
         val outFile = File(dir, "${UUID.randomUUID()}.jpg")
@@ -25,11 +20,17 @@ class ImageStorage(
                 input?.copyTo(output) ?: error("Could not read image stream")
             }
         }
-        outFile.absolutePath // DB에는 절대경로(또는 상대경로) 저장
+        outFile.name
+    }
+
+    fun resolve(path: String?): File? {
+        if (path.isNullOrBlank()) return null
+        val stored = File(path)
+        return if (stored.isAbsolute) stored else File(File(appContext.filesDir, "images"), path)
     }
 
     suspend fun deleteFile(path: String?): Boolean = withContext(Dispatchers.IO) {
         if (path.isNullOrBlank()) return@withContext false
-        runCatching { File(path).takeIf { it.exists() }?.delete() ?: false }.getOrDefault(false)
+        runCatching { resolve(path)?.takeIf { it.exists() }?.delete() ?: false }.getOrDefault(false)
     }
 }

@@ -8,7 +8,6 @@ data class MemoryItem(
     val title: String,
     val description: String,
     val imageUrl: String?,   // File path도 String으로 전달
-    val imageBytes: ByteArray?,
     val date: LocalDate,
     val tags: List<String>,
     val isFavorite: Boolean
@@ -20,7 +19,6 @@ object MemoryUiMapper {
         title = m.title,
         description = m.description,
         imageUrl = m.imagePath, // ← File path를 그대로 넘김(Coal이 File도 처리)
-        imageBytes = m.imageBytes,
         date = m.date,
         tags = m.tags,
         isFavorite = m.isFavorite
