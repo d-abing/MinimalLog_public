@@ -10,6 +10,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -253,30 +254,42 @@ private fun DriveSettingsRow(
                 FilledTonalButton(
                     onClick = onBackup,
                     enabled = !busy,
-                    modifier = Modifier.weight(1f),
+                    modifier = Modifier.weight(1.2f),
+                    contentPadding = PaddingValues(horizontal = 8.dp, vertical = 8.dp),
                 ) {
                     if (busy) {
                         CircularProgressIndicator(
                             modifier = Modifier.size(16.dp),
                             strokeWidth = 2.dp,
                         )
+                        Spacer(Modifier.width(6.dp))
                     }
-                    Spacer(Modifier.width(6.dp))
-                    Text(stringResource(R.string.text_back_up_now))
+                    Text(
+                        text = stringResource(R.string.text_back_up_now),
+                        maxLines = 1,
+                    )
                 }
                 OutlinedButton(
                     onClick = onRestore,
                     enabled = !busy,
-                    modifier = Modifier.weight(1f),
+                    modifier = Modifier.weight(0.8f),
+                    contentPadding = PaddingValues(horizontal = 8.dp, vertical = 8.dp),
                 ) {
-                    Text(stringResource(R.string.text_restore))
+                    Text(
+                        text = stringResource(R.string.text_restore),
+                        maxLines = 1,
+                    )
                 }
                 OutlinedButton(
                     onClick = onDisconnect,
                     enabled = !busy,
-                    modifier = Modifier.weight(1f),
+                    modifier = Modifier.weight(1.15f),
+                    contentPadding = PaddingValues(horizontal = 8.dp, vertical = 8.dp),
                 ) {
-                    Text(stringResource(R.string.text_disconnect))
+                    Text(
+                        text = stringResource(R.string.text_disconnect),
+                        maxLines = 1,
+                    )
                 }
             }
         } else {

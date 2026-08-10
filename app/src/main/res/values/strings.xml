@@ -25,6 +25,7 @@
 
     <string name="text_select_picture">Tap to select a photo</string>
     <string name="text_today_s_memory">Today’s Memory</string>
+    <string name="date_month_year_pattern">MMMM yyyy</string>
     <string name="text_no_memory">No memories found.</string>
     <string name="text_slogan">Live Lighter, Live Freer</string>
     <string name="text_decision">Decisions completed</string>

@@ -40,6 +40,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -54,7 +55,6 @@ import com.aube.minimallog.presentation.ui.component.MLSearchField
 import com.aube.minimallog.presentation.viewmodel.MemoryViewModel
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
-import java.util.Locale
 
 // ---- Public API --------------------------------------------------------------
 
@@ -162,9 +162,6 @@ fun LogScreen(
 
 enum class SortOption { NEW_FIRST, OLD_FIRST }
 
-private val monthFormatter =
-    DateTimeFormatter.ofPattern("LLLL yyyy", Locale.getDefault()) // e.g., "September 2025"
-
 private fun groupByYearMonth(list: List<MemoryItem>): LinkedHashMap<YearMonthKey, List<MemoryItem>> {
     val map = linkedMapOf<YearMonthKey, MutableList<MemoryItem>>()
     list.forEach { m ->
@@ -175,7 +172,7 @@ private fun groupByYearMonth(list: List<MemoryItem>): LinkedHashMap<YearMonthKey
 }
 
 private data class YearMonthKey(val year: Int, val month: Int) {
-    fun pretty(): String = monthFormatter.format(LocalDate.of(year, month, 1))
+    fun asDate(): LocalDate = LocalDate.of(year, month, 1)
 }
 
 // ---- Composables -------------------------------------------------------------
@@ -276,8 +273,15 @@ private fun TagChipsRow(
 
 @Composable
 private fun MonthHeader(ym: YearMonthKey) {
+    val configuration = LocalConfiguration.current
+    val locale = configuration.locales[0]
+    val pattern = stringResource(R.string.date_month_year_pattern)
+    val formattedMonth = remember(ym, locale, pattern) {
+        DateTimeFormatter.ofPattern(pattern, locale).format(ym.asDate())
+    }
+
     Text(
-        text = ym.pretty(),
+        text = formattedMonth,
         style = MaterialTheme.typography.titleSmall.copy(
             fontWeight = FontWeight.SemiBold,
             color = MaterialTheme.colorScheme.onSecondary
