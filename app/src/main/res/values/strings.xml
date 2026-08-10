@@ -17,6 +17,8 @@
     <string name="action_newest">Newest</string>
     <string name="action_oldest">Oldest</string>
     <string name="action_toggle_favorite">Toggle favorite</string>
+    <string name="action_photo_view">Photo grid view</string>
+    <string name="action_list_view">Card list view</string>
 
     <string name="placeholder_memory_search">Search memories</string>
     <string name="placeholder_tag_input">Tag</string>
@@ -26,6 +28,7 @@
     <string name="text_select_picture">Tap to select a photo</string>
     <string name="text_today_s_memory">Today’s Memory</string>
     <string name="date_month_year_pattern">MMMM yyyy</string>
+    <string name="date_full_pattern">MMMM d, yyyy</string>
     <string name="text_no_memory">No memories found.</string>
     <string name="text_slogan">Live Lighter, Live Freer</string>
     <string name="text_decision">Decisions completed</string>

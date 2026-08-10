@@ -17,6 +17,7 @@ import com.aube.minimallog.presentation.ui.screens.SettingsScreen
 fun MainNavHost(
     navController: NavHostController,
     onMemoryTopBarActionsChange: (MemoryTopBarActions?) -> Unit,
+    onLogTopBarActionsChange: (LogTopBarActions?) -> Unit,
     modifier: Modifier = Modifier
 ) {
     NavHost(navController, startDestination = Screen.Home.route) {
@@ -30,9 +31,11 @@ fun MainNavHost(
         composable(
             route = Screen.Log.route,
         ) {
-            LogScreen(modifier) {
-                navController.navigate("memory/$it")
-            }
+            LogScreen(
+                modifier = modifier,
+                onTopBarActionsChange = onLogTopBarActionsChange,
+                onMemoryClick = { navController.navigate("memory/$it") },
+            )
         }
         composable(
             route = Screen.Memory.route,

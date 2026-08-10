@@ -2,23 +2,31 @@ package com.aube.minimallog.presentation.ui.screens
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.GridItemSpan
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items as gridItems
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
@@ -29,6 +37,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -50,6 +59,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import com.aube.minimallog.R
 import com.aube.minimallog.presentation.model.MemoryItem
+import com.aube.minimallog.presentation.ui.nav.LogTopBarActions
 import com.aube.minimallog.presentation.ui.component.MLRainbowBorderChip
 import com.aube.minimallog.presentation.ui.component.MLSearchField
 import com.aube.minimallog.presentation.viewmodel.MemoryViewModel
@@ -61,6 +71,7 @@ import java.time.format.DateTimeFormatter
 @Composable
 fun LogScreen(
     modifier: Modifier = Modifier,
+    onTopBarActionsChange: (LogTopBarActions?) -> Unit = {},
     onMemoryClick: (Long) -> Unit,
 ) {
     val listState = rememberLazyListState()
@@ -70,6 +81,17 @@ fun LogScreen(
 
     var selectedTags by rememberSaveable { mutableStateOf(emptySet<String>()) }
     var isFavoriteOn by rememberSaveable { mutableStateOf(false) }
+    val photoOnly by vm.photoOnly.collectAsState()
+
+    DisposableEffect(photoOnly) {
+        onTopBarActionsChange(
+            LogTopBarActions(
+                photoOnly = photoOnly,
+                onToggleView = vm::togglePhotoOnly,
+            ),
+        )
+        onDispose { onTopBarActionsChange(null) }
+    }
 
     val query by vm.query.collectAsState()
     val sort by vm.sort.collectAsState()
@@ -133,27 +155,50 @@ fun LogScreen(
         // Group by month
         val grouped = remember(filteredSorted) { groupByYearMonth(filteredSorted) }
 
-        LazyColumn(
-            state = listState,
-            verticalArrangement = Arrangement.spacedBy(8.dp),
-            modifier = Modifier.fillMaxSize()
-        ) {
-            grouped.forEach { (ym, items) ->
-                item(key = "header-$ym") {
-                    MonthHeader(ym = ym)
+        if (photoOnly) {
+            LazyVerticalGrid(
+                columns = GridCells.Fixed(3),
+                horizontalArrangement = Arrangement.spacedBy(6.dp),
+                verticalArrangement = Arrangement.spacedBy(6.dp),
+                modifier = Modifier.fillMaxSize(),
+            ) {
+                grouped.forEach { (ym, monthItems) ->
+                    item(
+                        key = "photo-header-$ym",
+                        span = { GridItemSpan(maxLineSpan) },
+                    ) {
+                        MonthHeader(ym = ym)
+                    }
+                    gridItems(
+                        items = monthItems,
+                        key = { item -> item.id },
+                    ) { item ->
+                        PhotoTile(
+                            item = item,
+                            onClick = { onMemoryClick(item.id) },
+                        )
+                    }
                 }
-                items(
-                    items = items,
-                    key = { item -> item.id }
-                ) { item ->
-                    MemoryRow(
-                        item = item,
-                        onClick = { onMemoryClick(item.id) },
-                        onToggleFavorite = { vm.onToggleFavorite(item) },
-                    )
-                }
+                item(span = { GridItemSpan(maxLineSpan) }) { Spacer(Modifier.height(12.dp)) }
             }
-            item { Spacer(Modifier.height(12.dp)) }
+        } else {
+            LazyColumn(
+                state = listState,
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+                modifier = Modifier.fillMaxSize(),
+            ) {
+                grouped.forEach { (ym, monthItems) ->
+                    item(key = "header-$ym") { MonthHeader(ym = ym) }
+                    items(items = monthItems, key = { item -> item.id }) { item ->
+                        MemoryRow(
+                            item = item,
+                            onClick = { onMemoryClick(item.id) },
+                            onToggleFavorite = { vm.onToggleFavorite(item) },
+                        )
+                    }
+                }
+                item { Spacer(Modifier.height(12.dp)) }
+            }
         }
     }
 }
@@ -185,9 +230,17 @@ private fun SearchAndSortRow(
     onSortChange: (SortOption) -> Unit
 ) {
     Row(
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
         verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(IntrinsicSize.Min)
+            .clip(RoundedCornerShape(18.dp))
+            .background(MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.8f))
+            .border(
+                width = 1.dp,
+                color = MaterialTheme.colorScheme.primary.copy(alpha = 0.08f),
+                shape = RoundedCornerShape(18.dp),
+            ),
     ) {
         MLSearchField(
             searchQuery = query,
@@ -204,18 +257,41 @@ private fun SearchAndSortRow(
             SortOption.OLD_FIRST -> SortOption.NEW_FIRST
         }
 
-        Text(
-            text = sortName,
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.primary,
-            textAlign = TextAlign.End,
+        Box(
             modifier = Modifier
-                .width(60.dp)
+                .width(1.dp)
+                .height(28.dp)
+                .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.12f)),
+        )
+
+        Row(
+            modifier = Modifier
+                .width(92.dp)
+                .fillMaxHeight()
                 .clickable(
                     indication = null,
                     interactionSource = remember { MutableInteractionSource() }
                 ) { onSortChange(targetSort) }
-        )
+                .padding(horizontal = 10.dp),
+            horizontalArrangement = Arrangement.spacedBy(
+                space = 6.dp,
+                alignment = Alignment.CenterHorizontally,
+            ),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Text(
+                text = "↕",
+                style = MaterialTheme.typography.labelLarge,
+                color = MaterialTheme.colorScheme.primary,
+            )
+            Text(
+                text = sortName,
+                style = MaterialTheme.typography.labelMedium,
+                color = MaterialTheme.colorScheme.primary,
+                fontWeight = FontWeight.SemiBold,
+                maxLines = 1,
+            )
+        }
     }
 }
 
@@ -420,6 +496,29 @@ private fun EmptyState() {
             stringResource(R.string.text_no_memory_detail),
             style = MaterialTheme.typography.bodySmall,
             color = Color(0xFF7D7A6F)
+        )
+    }
+}
+
+@Composable
+private fun PhotoTile(
+    item: MemoryItem,
+    onClick: () -> Unit,
+) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .aspectRatio(1f)
+            .clip(RoundedCornerShape(10.dp))
+            .background(MaterialTheme.colorScheme.primaryContainer)
+            .clickable(onClick = onClick),
+        contentAlignment = Alignment.Center,
+    ) {
+        AsyncImage(
+            model = item.imageUrl ?: R.drawable.app_logo,
+            contentDescription = item.title,
+            modifier = if (item.imageUrl == null) Modifier.size(52.dp) else Modifier.fillMaxSize(),
+            contentScale = if (item.imageUrl == null) ContentScale.Fit else ContentScale.Crop,
         )
     }
 }

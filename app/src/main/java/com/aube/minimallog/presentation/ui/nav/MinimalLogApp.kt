@@ -1,17 +1,17 @@
 package com.aube.minimallog.presentation.ui.nav
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.windowInsetsPadding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Delete
-import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -28,10 +28,12 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.compose.currentBackStackEntryAsState
 import com.aube.minimallog.R
 import com.aube.minimallog.presentation.ui.component.AdaptiveBanner
 
@@ -39,8 +41,11 @@ import com.aube.minimallog.presentation.ui.component.AdaptiveBanner
 @Composable
 fun MinimalLogApp() {
     val navController = rememberNavController()
+    val currentBackStackEntry by navController.currentBackStackEntryAsState()
+    val currentRoute = currentBackStackEntry?.destination?.route
     val snackbarHostState = remember { SnackbarHostState() }
     var memoryTopBarActions by remember { mutableStateOf<MemoryTopBarActions?>(null) }
+    var logTopBarActions by remember { mutableStateOf<LogTopBarActions?>(null) }
 
     Scaffold(
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
@@ -57,18 +62,48 @@ fun MinimalLogApp() {
                         )
                     },
                     actions = {
-                        memoryTopBarActions?.let { actions ->
-                            IconButton(onClick = actions.onDelete) {
+                        if (currentRoute == Screen.Log.route) logTopBarActions?.let { actions ->
+                            IconButton(onClick = actions.onToggleView) {
                                 Icon(
-                                    imageVector = Icons.Outlined.Delete,
-                                    contentDescription = stringResource(R.string.action_delete)
+                                    painter = painterResource(
+                                        if (actions.photoOnly) R.drawable.ic_view_cards
+                                        else R.drawable.ic_view_photo_grid,
+                                    ),
+                                    contentDescription = stringResource(
+                                        if (actions.photoOnly) R.string.action_list_view
+                                        else R.string.action_photo_view,
+                                    ),
+                                    tint = MaterialTheme.colorScheme.onBackground,
                                 )
                             }
-                            IconButton(onClick = actions.onEdit) {
-                                Icon(
-                                    imageVector = Icons.Outlined.Edit,
-                                    contentDescription = stringResource(R.string.action_edit)
-                                )
+                        }
+                        if (currentRoute == Screen.Memory.route) memoryTopBarActions?.let { actions ->
+                            Row(
+                                modifier = Modifier.padding(end = 8.dp),
+                                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            ) {
+                                IconButton(
+                                    onClick = actions.onDelete,
+                                    modifier = Modifier.size(38.dp),
+                                ) {
+                                    Icon(
+                                        painter = painterResource(R.drawable.ic_delete_soft),
+                                        contentDescription = stringResource(R.string.action_delete),
+                                        tint = Color(0xFFC95D6B),
+                                        modifier = Modifier.size(21.dp),
+                                    )
+                                }
+                                IconButton(
+                                    onClick = actions.onEdit,
+                                    modifier = Modifier.size(38.dp),
+                                ) {
+                                    Icon(
+                                        painter = painterResource(R.drawable.ic_edit_soft),
+                                        contentDescription = stringResource(R.string.action_edit),
+                                        tint = Color(0xFF477487),
+                                        modifier = Modifier.size(21.dp),
+                                    )
+                                }
                             }
                         }
                     },
@@ -104,6 +139,7 @@ fun MinimalLogApp() {
         MainNavHost(
             navController = navController,
             onMemoryTopBarActionsChange = { memoryTopBarActions = it },
+            onLogTopBarActionsChange = { logTopBarActions = it },
             modifier = Modifier
                 .padding(paddingValues)
                 .consumeWindowInsets(paddingValues)
@@ -114,4 +150,9 @@ fun MinimalLogApp() {
 data class MemoryTopBarActions(
     val onDelete: () -> Unit,
     val onEdit: () -> Unit,
+)
+
+data class LogTopBarActions(
+    val photoOnly: Boolean,
+    val onToggleView: () -> Unit,
 )

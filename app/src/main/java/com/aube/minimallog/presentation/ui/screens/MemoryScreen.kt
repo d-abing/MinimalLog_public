@@ -33,6 +33,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -44,7 +45,6 @@ import com.aube.minimallog.presentation.ui.nav.MemoryTopBarActions
 import com.aube.minimallog.presentation.viewmodel.MemoryViewModel
 import java.io.File
 import java.time.format.DateTimeFormatter
-import java.util.Locale
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -71,8 +71,11 @@ fun MemoryScreen(
             )
             onDispose { onTopBarActionsChange(null) }
         }
-        val dateText = remember(item.date) {
-            DateTimeFormatter.ofPattern("LLLL d, yyyy", Locale.getDefault()).format(item.date)
+        val configuration = LocalConfiguration.current
+        val locale = configuration.locales[0]
+        val datePattern = stringResource(R.string.date_full_pattern)
+        val dateText = remember(item.date, locale, datePattern) {
+            DateTimeFormatter.ofPattern(datePattern, locale).format(item.date)
         }
 
         Column(

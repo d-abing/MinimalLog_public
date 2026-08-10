@@ -1,5 +1,6 @@
 package com.aube.minimallog.presentation.viewmodel
 
+import android.content.Context
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -10,11 +11,13 @@ import com.aube.minimallog.domain.usecase.ObserveMemoryByIdUseCase
 import com.aube.minimallog.domain.usecase.ObserveSearchUseCase
 import com.aube.minimallog.domain.usecase.ObserveTodayMemoryUseCase
 import com.aube.minimallog.domain.usecase.ToggleFavoriteUseCase
+import com.aube.minimallog.data.datastore.LogViewPrefs
 import com.aube.minimallog.presentation.model.MemoryDraft
 import com.aube.minimallog.presentation.model.MemoryItem
 import com.aube.minimallog.presentation.model.MemoryUiMapper
 import com.aube.minimallog.presentation.ui.screens.SortOption
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.channels.Channel
@@ -42,6 +45,7 @@ class MemoryViewModel @Inject constructor(
     private val observeSearch: ObserveSearchUseCase,
     private val toggleFavorite: ToggleFavoriteUseCase,
     private val deleteMemory: DeleteMemoryUseCase,
+    @ApplicationContext private val context: Context,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
@@ -53,6 +57,10 @@ class MemoryViewModel @Inject constructor(
 
     private val _sort = MutableStateFlow(SortOption.NEW_FIRST)
     val sort: StateFlow<SortOption> = _sort
+
+    val photoOnly: StateFlow<Boolean> =
+        LogViewPrefs.flow(context)
+            .stateIn(viewModelScope, SharingStarted.Eagerly, false)
 
     private val _events = Channel<Event>(Channel.BUFFERED)
     val events = _events.receiveAsFlow()
@@ -108,6 +116,12 @@ class MemoryViewModel @Inject constructor(
     fun onQueryChange(q: String) { _query.value = q }
 
     fun onSortChange(s: SortOption) { _sort.value = s }
+
+    fun togglePhotoOnly() {
+        viewModelScope.launch {
+            LogViewPrefs.setPhotoOnly(context, !photoOnly.value)
+        }
+    }
 
     fun onToggleFavorite(item: MemoryItem) {
         viewModelScope.launch {

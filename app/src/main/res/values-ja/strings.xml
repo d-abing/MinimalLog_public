@@ -17,6 +17,8 @@
     <string name="action_newest">新しい順</string>
     <string name="action_oldest">古い順</string>
     <string name="action_toggle_favorite">お気に入り切替</string>
+    <string name="action_photo_view">写真グリッド表示</string>
+    <string name="action_list_view">カード一覧表示</string>
 
     <string name="placeholder_memory_search">思い出を検索</string>
     <string name="placeholder_tag_input">タグ</string>
@@ -26,6 +28,7 @@
     <string name="text_select_picture">写真をタップして選択</string>
     <string name="text_today_s_memory">今日の思い出</string>
     <string name="date_month_year_pattern">yyyy年M月</string>
+    <string name="date_full_pattern">yyyy年M月d日</string>
     <string name="text_no_memory">思い出が見つかりません。</string>
     <string name="text_slogan">軽やかに、もっと自由に</string>
     <string name="text_decision">件の決定を完了しました</string>
