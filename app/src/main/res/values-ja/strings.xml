@@ -6,7 +6,7 @@
     <string name="nav_home">ホーム</string>
     <string name="nav_log">ログ</string>
     <string name="nav_memory">思い出</string>
-    <string name="nav_add">クリア</string>
+    <string name="nav_add">手放す</string>
     <string name="nav_settings">設定</string>
 
     <string name="action_delete">削除</string>
@@ -18,15 +18,15 @@
     <string name="action_oldest">古い順</string>
     <string name="action_toggle_favorite">お気に入り切替</string>
     <string name="action_photo_view">写真グリッド表示</string>
-    <string name="action_compact_photo_view">写真のみのグリッド表示</string>
+    <string name="action_compact_photo_view">写真を画面いっぱいに表示</string>
     <string name="action_list_view">カード一覧表示</string>
 
     <string name="placeholder_memory_search">思い出を検索</string>
     <string name="placeholder_tag_input">タグ</string>
     <string name="placeholder_memory_title">何を手放しましたか？</string>
-    <string name="placeholder_memory_description">その日の出来事や気持ちを気軽に残してみましょう</string>
+    <string name="placeholder_memory_description">その日の出来事や気持ちを、そっと残してみましょう</string>
 
-    <string name="text_picture_memory_prompt">手放した瞬間を写真で残しましょう</string>
+    <string name="text_picture_memory_prompt">手放した瞬間を、写真に残してみませんか</string>
     <string name="text_select_picture">タップして写真を選択</string>
     <string name="text_today_s_memory">今日の思い出</string>
     <string name="date_month_year_pattern">yyyy年M月</string>
