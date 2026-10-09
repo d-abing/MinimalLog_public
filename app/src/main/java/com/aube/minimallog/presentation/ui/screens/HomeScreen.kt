@@ -2,7 +2,6 @@ package com.aube.minimallog.presentation.ui.screens
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -20,7 +19,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -46,10 +44,10 @@ fun HomeScreen(
     val item by vm.memories.collectAsState()
     val count = item.size
     val todayMemory by vm.todayMemory.collectAsState()
-    val backgroundGradient = Brush.linearGradient(
+    val backgroundGradient = Brush.verticalGradient(
         colors = listOf(
-            Color(0xFFE7F6FD),
-            Color(0xFFF3F8FC),
+            Color(0xFFEAF6FC),
+            Color(0xFFF8FAF8),
             Color(0xFFFFFBF2),
         ),
     )
@@ -78,7 +76,9 @@ fun HomeScreen(
                     colors = CardDefaults.cardColors(
                         containerColor = MaterialTheme.colorScheme.primaryContainer,
                     ),
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable { isSeeMoreClick(memory.id) },
                 ) {
                     Column {
                         Box(
@@ -124,14 +124,7 @@ fun HomeScreen(
                                 style = MaterialTheme.typography.bodySmall.copy(
                                     color = MaterialTheme.colorScheme.onSecondary,
                                 ),
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .clickable(
-                                        indication = null,
-                                        interactionSource = remember { MutableInteractionSource() },
-                                    ) {
-                                        isSeeMoreClick(memory.id)
-                                    },
+                                modifier = Modifier.fillMaxWidth(),
                                 textAlign = TextAlign.End,
                             )
                         }

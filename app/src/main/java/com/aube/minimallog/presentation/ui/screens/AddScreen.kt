@@ -315,7 +315,23 @@ private fun ColumnScope.ImagePickerCard(
                         .aspectRatio(1f),
                     contentAlignment = Alignment.Center
                 ) {
-                    Text(stringResource(R.string.text_select_picture))
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                    ) {
+                        Text(
+                            text = stringResource(R.string.text_picture_memory_prompt),
+                            style = MaterialTheme.typography.titleSmall,
+                            color = MaterialTheme.colorScheme.onSurface,
+                            textAlign = TextAlign.Center,
+                        )
+                        Spacer(Modifier.height(6.dp))
+                        Text(
+                            text = stringResource(R.string.text_select_picture),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSecondary.copy(alpha = 0.72f),
+                            textAlign = TextAlign.Center,
+                        )
+                    }
                 }
             } else {
                 AsyncImage(

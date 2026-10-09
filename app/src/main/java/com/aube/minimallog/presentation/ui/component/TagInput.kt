@@ -8,10 +8,12 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.AssistChip
+import androidx.compose.material3.AssistChipDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -58,7 +60,13 @@ fun TagInput(
                             style = MaterialTheme.typography.labelMedium
                         )
                     },
-                    modifier = Modifier.height(32.dp)
+                    modifier = Modifier.height(32.dp),
+                    shape = RoundedCornerShape(50),
+                    colors = AssistChipDefaults.assistChipColors(
+                        containerColor = MaterialTheme.colorScheme.secondary.copy(alpha = 0.72f),
+                        labelColor = MaterialTheme.colorScheme.onSurface,
+                    ),
+                    border = null,
                 )
             }
 

@@ -5,7 +5,7 @@
     <string name="nav_home">Home</string>
     <string name="nav_log">Log</string>
     <string name="nav_memory">Memory</string>
-    <string name="nav_add">Add</string>
+    <string name="nav_add">Clear</string>
     <string name="nav_settings">Settings</string>
 
     <string name="action_delete">Delete</string>
@@ -18,20 +18,23 @@
     <string name="action_oldest">Oldest</string>
     <string name="action_toggle_favorite">Toggle favorite</string>
     <string name="action_photo_view">Photo grid view</string>
+    <string name="action_compact_photo_view">Compact photo grid view</string>
     <string name="action_list_view">Card list view</string>
 
     <string name="placeholder_memory_search">Search memories</string>
     <string name="placeholder_tag_input">Tag</string>
-    <string name="placeholder_memory_title">Title</string>
-    <string name="placeholder_memory_description">Description (memory note)</string>
+    <string name="placeholder_memory_title">What did you let go of?</string>
+    <string name="placeholder_memory_description">Leave a little note about the story and how you felt</string>
 
-    <string name="text_select_picture">Tap to select a photo</string>
+    <string name="text_picture_memory_prompt">Keep the moment you let go in a photo</string>
+    <string name="text_select_picture">Tap to choose a photo</string>
     <string name="text_today_s_memory">Today’s Memory</string>
     <string name="date_month_year_pattern">MMMM yyyy</string>
     <string name="date_full_pattern">MMMM d, yyyy</string>
     <string name="text_no_memory">No memories found.</string>
     <string name="text_slogan">Live Lighter, Live Freer</string>
     <string name="text_decision">Decisions completed</string>
+    <string name="text_decision_count">%1$d decisions completed</string>
     <string name="text_slogan_detail">more room for what matters.</string>
     <string name="text_no_memory_detail">Try adding a new memory or adjusting filters.</string>
     <string name="text_delete_confirm">Delete this memory?</string>

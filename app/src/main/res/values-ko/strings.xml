@@ -6,7 +6,7 @@
     <string name="nav_home">홈</string>
     <string name="nav_log">로그</string>
     <string name="nav_memory">추억</string>
-    <string name="nav_add">추가</string>
+    <string name="nav_add">비우기</string>
     <string name="nav_settings">설정</string>
 
     <string name="action_delete">삭제</string>
@@ -18,20 +18,23 @@
     <string name="action_oldest">오래된순</string>
     <string name="action_toggle_favorite">즐겨찾기 전환</string>
     <string name="action_photo_view">사진 모아보기</string>
+    <string name="action_compact_photo_view">사진만 꽉 채워 보기</string>
     <string name="action_list_view">카드 목록 보기</string>
 
     <string name="placeholder_memory_search">추억 검색</string>
     <string name="placeholder_tag_input">태그</string>
-    <string name="placeholder_memory_title">제목</string>
-    <string name="placeholder_memory_description">설명(추억 노트)</string>
+    <string name="placeholder_memory_title">어떤 것을 비워냈나요?</string>
+    <string name="placeholder_memory_description">그날의 이야기와 마음을 가볍게 남겨보세요</string>
 
-    <string name="text_select_picture">사진을 선택하려면 탭하세요</string>
+    <string name="text_picture_memory_prompt">비워낸 순간을 사진으로 기억해 보세요</string>
+    <string name="text_select_picture">탭해서 사진을 선택하세요</string>
     <string name="text_today_s_memory">오늘의 추억</string>
     <string name="date_month_year_pattern">yyyy년 M월</string>
     <string name="date_full_pattern">yyyy년 M월 d일</string>
     <string name="text_no_memory">추억을 찾을 수 없어요.</string>
     <string name="text_slogan">더 가볍게, 더 자유롭게</string>
     <string name="text_decision">번의 결정을 완료했습니다.</string>
+    <string name="text_decision_count">%1$d번의 결정을 완료했습니다.</string>
     <string name="text_slogan_detail">더 중요한 것을 위한 여유</string>
     <string name="text_no_memory_detail">새 추억을 추가하거나 필터를 조정해 보세요.</string>
     <string name="text_delete_confirm">이 추억을 삭제할까요?</string>

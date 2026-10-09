@@ -22,6 +22,9 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -36,6 +39,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.aube.minimallog.R
 import com.aube.minimallog.presentation.ui.component.AdaptiveBanner
+import com.aube.minimallog.presentation.model.LogViewMode
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -66,12 +70,18 @@ fun MinimalLogApp() {
                             IconButton(onClick = actions.onToggleView) {
                                 Icon(
                                     painter = painterResource(
-                                        if (actions.photoOnly) R.drawable.ic_view_cards
-                                        else R.drawable.ic_view_photo_grid,
+                                        when (actions.viewMode) {
+                                            LogViewMode.LIST -> R.drawable.ic_view_cards
+                                            LogViewMode.GROUPED_GRID -> R.drawable.ic_view_photo_grid
+                                            LogViewMode.IMMERSIVE_GRID -> R.drawable.ic_view_dense_grid
+                                        },
                                     ),
                                     contentDescription = stringResource(
-                                        if (actions.photoOnly) R.string.action_list_view
-                                        else R.string.action_photo_view,
+                                        when (actions.viewMode) {
+                                            LogViewMode.LIST -> R.string.action_list_view
+                                            LogViewMode.GROUPED_GRID -> R.string.action_photo_view
+                                            LogViewMode.IMMERSIVE_GRID -> R.string.action_compact_photo_view
+                                        },
                                     ),
                                     tint = MaterialTheme.colorScheme.onBackground,
                                 )
@@ -101,6 +111,25 @@ fun MinimalLogApp() {
                                         painter = painterResource(R.drawable.ic_edit_soft),
                                         contentDescription = stringResource(R.string.action_edit),
                                         tint = Color(0xFF477487),
+                                        modifier = Modifier.size(21.dp),
+                                    )
+                                }
+                                IconButton(
+                                    onClick = actions.onToggleFavorite,
+                                    modifier = Modifier.size(38.dp),
+                                ) {
+                                    Icon(
+                                        imageVector = if (actions.isFavorite) {
+                                            Icons.Filled.Favorite
+                                        } else {
+                                            Icons.Outlined.FavoriteBorder
+                                        },
+                                        contentDescription = stringResource(R.string.action_toggle_favorite),
+                                        tint = if (actions.isFavorite) {
+                                            Color(0xFFF22959)
+                                        } else {
+                                            Color(0xFF477487)
+                                        },
                                         modifier = Modifier.size(21.dp),
                                     )
                                 }
@@ -150,9 +179,11 @@ fun MinimalLogApp() {
 data class MemoryTopBarActions(
     val onDelete: () -> Unit,
     val onEdit: () -> Unit,
+    val isFavorite: Boolean,
+    val onToggleFavorite: () -> Unit,
 )
 
 data class LogTopBarActions(
-    val photoOnly: Boolean,
+    val viewMode: LogViewMode,
     val onToggleView: () -> Unit,
 )

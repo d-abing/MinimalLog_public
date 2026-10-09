@@ -34,10 +34,12 @@ import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -59,6 +61,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import com.aube.minimallog.R
 import com.aube.minimallog.presentation.model.MemoryItem
+import com.aube.minimallog.presentation.model.LogViewMode
 import com.aube.minimallog.presentation.ui.nav.LogTopBarActions
 import com.aube.minimallog.presentation.ui.component.MLRainbowBorderChip
 import com.aube.minimallog.presentation.ui.component.MLSearchField
@@ -81,15 +84,18 @@ fun LogScreen(
 
     var selectedTags by rememberSaveable { mutableStateOf(emptySet<String>()) }
     var isFavoriteOn by rememberSaveable { mutableStateOf(false) }
-    val photoOnly by vm.photoOnly.collectAsState()
+    val viewMode by vm.logViewMode.collectAsState()
 
-    DisposableEffect(photoOnly) {
+    SideEffect {
         onTopBarActionsChange(
             LogTopBarActions(
-                photoOnly = photoOnly,
-                onToggleView = vm::togglePhotoOnly,
+                viewMode = viewMode,
+                onToggleView = vm::toggleLogViewMode,
             ),
         )
+    }
+
+    DisposableEffect(Unit) {
         onDispose { onTopBarActionsChange(null) }
     }
 
@@ -100,28 +106,46 @@ fun LogScreen(
     Column(
         modifier
             .fillMaxSize()
-            .padding(horizontal = 16.dp, vertical = 12.dp)
+            .background(Color(0xFFFCFCF9))
     ) {
-        // Search & Sort
-        Spacer(Modifier.height(4.dp))
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clip(
+                    RoundedCornerShape(
+                        bottomStart = 20.dp,
+                        bottomEnd = 20.dp,
+                    ),
+                )
+                .background(Color(0xFFF4F8FB)),
+        ) {
+            SearchAndSortRow(
+                query = query,
+                onQueryChange = vm::onQueryChange,
+                sort = sort,
+                onSortChange = vm::onSortChange
+            )
 
-        SearchAndSortRow(
-            query = query,
-            onQueryChange = vm::onQueryChange,
-            sort = sort,
-            onSortChange = vm::onSortChange
+            TagChipsRow(
+                tags = allTags,
+                selected = selectedTags,
+                isFavoriteOn = isFavoriteOn,
+                onFavoriteFilterClick = { isFavoriteOn = !isFavoriteOn },
+                onToggle = { selectedTags = if (it in selectedTags) selectedTags - it else selectedTags + it },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = 16.dp, top = 8.dp, end = 16.dp, bottom = 12.dp),
+            )
+        }
+
+        HorizontalDivider(
+            thickness = 1.dp,
+            color = Color(0xFFE3E9ED),
         )
 
-        Spacer(Modifier.height(16.dp))
-        TagChipsRow(
-            tags = allTags,
-            selected = selectedTags,
-            isFavoriteOn = isFavoriteOn,
-            onFavoriteFilterClick = { isFavoriteOn = !isFavoriteOn },
-            onToggle = { selectedTags = if (it in selectedTags) selectedTags - it else selectedTags + it }
-        )
-
-        Spacer(Modifier.height(12.dp))
+        if (viewMode != LogViewMode.IMMERSIVE_GRID) {
+            Spacer(Modifier.height(14.dp))
+        }
 
         val filteredSorted = remember(memories, query, selectedTags, sort, isFavoriteOn) {
             memories
@@ -155,12 +179,14 @@ fun LogScreen(
         // Group by month
         val grouped = remember(filteredSorted) { groupByYearMonth(filteredSorted) }
 
-        if (photoOnly) {
+        if (viewMode == LogViewMode.GROUPED_GRID) {
             LazyVerticalGrid(
                 columns = GridCells.Fixed(3),
                 horizontalArrangement = Arrangement.spacedBy(6.dp),
                 verticalArrangement = Arrangement.spacedBy(6.dp),
-                modifier = Modifier.fillMaxSize(),
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(horizontal = 16.dp),
             ) {
                 grouped.forEach { (ym, monthItems) ->
                     item(
@@ -176,16 +202,39 @@ fun LogScreen(
                         PhotoTile(
                             item = item,
                             onClick = { onMemoryClick(item.id) },
+                            onToggleFavorite = { vm.onToggleFavorite(item) },
+                            immersive = false,
                         )
                     }
                 }
                 item(span = { GridItemSpan(maxLineSpan) }) { Spacer(Modifier.height(12.dp)) }
             }
+        } else if (viewMode == LogViewMode.IMMERSIVE_GRID) {
+            LazyVerticalGrid(
+                columns = GridCells.Fixed(3),
+                horizontalArrangement = Arrangement.spacedBy(1.dp),
+                verticalArrangement = Arrangement.spacedBy(1.dp),
+                modifier = Modifier.fillMaxSize(),
+            ) {
+                gridItems(
+                    items = filteredSorted,
+                    key = { item -> item.id },
+                ) { item ->
+                    PhotoTile(
+                        item = item,
+                        onClick = { onMemoryClick(item.id) },
+                        onToggleFavorite = { vm.onToggleFavorite(item) },
+                        immersive = true,
+                    )
+                }
+            }
         } else {
             LazyColumn(
                 state = listState,
                 verticalArrangement = Arrangement.spacedBy(8.dp),
-                modifier = Modifier.fillMaxSize(),
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(horizontal = 16.dp),
             ) {
                 grouped.forEach { (ym, monthItems) ->
                     item(key = "header-$ym") { MonthHeader(ym = ym) }
@@ -234,13 +283,7 @@ private fun SearchAndSortRow(
         modifier = Modifier
             .fillMaxWidth()
             .height(IntrinsicSize.Min)
-            .clip(RoundedCornerShape(18.dp))
-            .background(MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.8f))
-            .border(
-                width = 1.dp,
-                color = MaterialTheme.colorScheme.primary.copy(alpha = 0.08f),
-                shape = RoundedCornerShape(18.dp),
-            ),
+            .background(Color.Transparent)
     ) {
         MLSearchField(
             searchQuery = query,
@@ -273,17 +316,9 @@ private fun SearchAndSortRow(
                     interactionSource = remember { MutableInteractionSource() }
                 ) { onSortChange(targetSort) }
                 .padding(horizontal = 10.dp),
-            horizontalArrangement = Arrangement.spacedBy(
-                space = 6.dp,
-                alignment = Alignment.CenterHorizontally,
-            ),
+            horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            Text(
-                text = "↕",
-                style = MaterialTheme.typography.labelLarge,
-                color = MaterialTheme.colorScheme.primary,
-            )
             Text(
                 text = sortName,
                 style = MaterialTheme.typography.labelMedium,
@@ -301,11 +336,12 @@ private fun TagChipsRow(
     selected: Set<String>,
     isFavoriteOn: Boolean,
     onFavoriteFilterClick: () -> Unit,
-    onToggle: (String) -> Unit
+    onToggle: (String) -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     LazyRow(
         horizontalArrangement = Arrangement.spacedBy(8.dp),
-        modifier = Modifier.fillMaxWidth()
+        modifier = modifier.fillMaxWidth()
     ) {
         item {
             MLRainbowBorderChip(
@@ -360,9 +396,9 @@ private fun MonthHeader(ym: YearMonthKey) {
         text = formattedMonth,
         style = MaterialTheme.typography.titleSmall.copy(
             fontWeight = FontWeight.SemiBold,
-            color = MaterialTheme.colorScheme.onSecondary
+            color = Color(0xFF465057),
         ),
-        modifier = Modifier.padding(top = 8.dp, bottom = 2.dp)
+        modifier = Modifier.padding(start = 4.dp, bottom = 6.dp),
     )
 }
 
@@ -372,54 +408,31 @@ private fun MemoryRow(
     onClick: () -> Unit,
     onToggleFavorite: (MemoryItem) -> Unit,
 ) {
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center,
+    Box(
         modifier = Modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(12.dp))
-            .background(MaterialTheme.colorScheme.primaryContainer)
+            .clip(RoundedCornerShape(16.dp))
+            .background(Color.White)
+            .border(
+                width = 1.dp,
+                color = Color(0xFFE9EEF1),
+                shape = RoundedCornerShape(16.dp),
+            )
             .clickable { onClick() }
-            .padding(top = 8.dp, bottom = 12.dp, start = 12.dp, end = 12.dp)
     ) {
         Row(
-            horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.fillMaxWidth()
-                .padding(bottom = 4.dp)
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(12.dp),
         ) {
-            Text(
-                text = "Day ${item.date.dayOfMonth}", // 필요 시 포맷 변경
-                style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.onSecondary,
-                modifier = Modifier.padding(start = 4.dp)
-            )
-
-            val iv = if (item.isFavorite) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder
-            val ic = if (item.isFavorite) Color(0xFFF22959) else MaterialTheme.colorScheme.onSecondary
-            Icon(imageVector = iv,
-                contentDescription = stringResource(R.string.action_toggle_favorite),
-                tint = ic,
-                modifier = Modifier.size(16.dp)
-                    .clickable(
-                        indication = null,
-                        interactionSource = remember { MutableInteractionSource() }
-                    ) { onToggleFavorite(item) }
-            )
-        }
-
-        Row(
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            // 썸네일
             if (item.imageUrl == null) {
                 Box(
                     modifier = Modifier
-                        .size(64.dp)
-                        .clip(RoundedCornerShape(10.dp))
-                        .background(MaterialTheme.colorScheme.tertiary),
+                        .size(80.dp)
+                        .clip(RoundedCornerShape(12.dp))
+                        .background(MaterialTheme.colorScheme.primaryContainer),
                     contentAlignment = Alignment.Center
                 ) {
                     AsyncImage(
@@ -436,49 +449,88 @@ private fun MemoryRow(
                     contentDescription = item.title,
                     contentScale = ContentScale.Crop,
                     modifier = Modifier
-                        .size(64.dp)
-                        .clip(RoundedCornerShape(10.dp))
+                        .size(80.dp)
+                        .clip(RoundedCornerShape(12.dp))
                 )
             }
 
-            // 텍스트 영역
-            Column(modifier = Modifier.weight(1f)) {
+            Column(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.Center,
+            ) {
                 Text(
                     text = item.title,
-                    style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.SemiBold),
+                    style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold),
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
-                    modifier = Modifier.padding(start = 2.dp).fillMaxWidth()
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(start = 8.dp, end = 24.dp),
                 )
-                Spacer(Modifier.height(2.dp))
                 if (item.description.isNotEmpty()) {
+                    Spacer(Modifier.height(4.dp))
                     Text(
                         text = item.description,
                         style = MaterialTheme.typography.bodySmall,
-                        color = Color(0xFF7D7A6F),
+                        color = Color(0xFF727B80),
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
-                        modifier = Modifier.padding(start = 2.dp).fillMaxWidth()
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(start = 8.dp, end = 24.dp),
                     )
                 }
-                Spacer(Modifier.height(4.dp))
                 if (item.tags.isNotEmpty()) {
-                    Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                        item.tags.take(3).forEach { tag ->
+                    Spacer(Modifier.height(8.dp))
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(6.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        item.tags.take(4).forEach { tag ->
                             Box(
                                 modifier = Modifier
                                     .clip(RoundedCornerShape(50))
                                     .background(MaterialTheme.colorScheme.secondary)
-                                    .padding(horizontal = 8.dp, vertical = 2.dp)
-                            ) { Text(tag, style = MaterialTheme.typography.labelSmall) }
+                                    .padding(horizontal = 8.dp, vertical = 2.dp),
+                            ) {
+                                Text(
+                                    text = tag,
+                                    style = MaterialTheme.typography.labelSmall,
+                                )
+                            }
                         }
-                        if (item.tags.size > 3) {
-                            Text("+${item.tags.size - 3}", style = MaterialTheme.typography.labelSmall)
+                        if (item.tags.size > 4) {
+                            Text(
+                                text = "+${item.tags.size - 4}",
+                                style = MaterialTheme.typography.labelSmall.copy(
+                                    fontWeight = FontWeight.Medium,
+                                ),
+                                color = MaterialTheme.colorScheme.onSecondary,
+                                modifier = Modifier.padding(start = 4.dp),
+                                maxLines = 1,
+                                softWrap = false,
+                            )
                         }
                     }
                 }
             }
         }
+
+        val favoriteIcon = if (item.isFavorite) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder
+        val favoriteColor = if (item.isFavorite) Color(0xFFF22959) else MaterialTheme.colorScheme.onSecondary
+        Icon(
+            imageVector = favoriteIcon,
+            contentDescription = stringResource(R.string.action_toggle_favorite),
+            tint = favoriteColor,
+            modifier = Modifier
+                .align(Alignment.TopEnd)
+                .padding(13.dp)
+                .size(20.dp)
+                .clickable(
+                    indication = null,
+                    interactionSource = remember { MutableInteractionSource() },
+                ) { onToggleFavorite(item) },
+        )
     }
 }
 
@@ -504,12 +556,14 @@ private fun EmptyState() {
 private fun PhotoTile(
     item: MemoryItem,
     onClick: () -> Unit,
+    onToggleFavorite: () -> Unit,
+    immersive: Boolean,
 ) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
             .aspectRatio(1f)
-            .clip(RoundedCornerShape(10.dp))
+            .clip(if (immersive) RoundedCornerShape(0.dp) else RoundedCornerShape(10.dp))
             .background(MaterialTheme.colorScheme.primaryContainer)
             .clickable(onClick = onClick),
         contentAlignment = Alignment.Center,
@@ -520,5 +574,42 @@ private fun PhotoTile(
             modifier = if (item.imageUrl == null) Modifier.size(52.dp) else Modifier.fillMaxSize(),
             contentScale = if (item.imageUrl == null) ContentScale.Fit else ContentScale.Crop,
         )
+
+        if (!immersive) {
+            val favoriteIcon = if (item.isFavorite) {
+                Icons.Filled.Favorite
+            } else {
+                Icons.Outlined.FavoriteBorder
+            }
+            Box(
+                modifier = Modifier
+                    .align(Alignment.TopEnd)
+                    .padding(6.dp)
+                    .size(30.dp)
+                    .clickable(
+                        indication = null,
+                        interactionSource = remember { MutableInteractionSource() },
+                        onClick = onToggleFavorite,
+                    ),
+                contentAlignment = Alignment.Center,
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.Favorite,
+                    contentDescription = null,
+                    tint = if (item.isFavorite) {
+                        Color(0xFFF22959)
+                    } else {
+                        Color.Black.copy(alpha = 0.45f)
+                    },
+                    modifier = Modifier.size(22.dp),
+                )
+                Icon(
+                    imageVector = favoriteIcon,
+                    contentDescription = stringResource(R.string.action_toggle_favorite),
+                    tint = if (item.isFavorite) Color(0xFFF22959) else Color.White,
+                    modifier = Modifier.size(22.dp),
+                )
+            }
+        }
     }
 }

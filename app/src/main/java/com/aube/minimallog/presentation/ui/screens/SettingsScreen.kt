@@ -6,6 +6,7 @@ import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -274,6 +275,12 @@ private fun DriveSettingsRow(
                     enabled = !busy,
                     modifier = Modifier.weight(0.8f),
                     contentPadding = PaddingValues(horizontal = 8.dp, vertical = 8.dp),
+                    border = BorderStroke(
+                        width = 1.dp,
+                        color = MaterialTheme.colorScheme.primary.copy(
+                            alpha = if (busy) 0.12f else 0.28f,
+                        ),
+                    ),
                 ) {
                     Text(
                         text = stringResource(R.string.text_restore),
@@ -285,6 +292,12 @@ private fun DriveSettingsRow(
                     enabled = !busy,
                     modifier = Modifier.weight(1.15f),
                     contentPadding = PaddingValues(horizontal = 8.dp, vertical = 8.dp),
+                    border = BorderStroke(
+                        width = 1.dp,
+                        color = MaterialTheme.colorScheme.primary.copy(
+                            alpha = if (busy) 0.12f else 0.28f,
+                        ),
+                    ),
                 ) {
                     Text(
                         text = stringResource(R.string.text_disconnect),

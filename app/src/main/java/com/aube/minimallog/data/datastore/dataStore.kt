@@ -6,6 +6,7 @@ import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import kotlinx.coroutines.flow.map
+import com.aube.minimallog.presentation.model.LogViewMode
 
 private val Context.dataStore by preferencesDataStore("settings")
 
@@ -21,14 +22,21 @@ object LocalePrefs {
 
 object LogViewPrefs {
     private val KEY_PHOTO_ONLY = booleanPreferencesKey("log_photo_only")
+    private val KEY_VIEW_MODE = stringPreferencesKey("log_view_mode")
 
     fun flow(context: Context) = context.dataStore.data.map { preferences ->
-        preferences[KEY_PHOTO_ONLY] ?: false
+        preferences[KEY_VIEW_MODE]
+            ?.let { saved -> LogViewMode.entries.find { it.name == saved } }
+            ?: if (preferences[KEY_PHOTO_ONLY] == true) {
+                LogViewMode.GROUPED_GRID
+            } else {
+                LogViewMode.LIST
+            }
     }
 
-    suspend fun setPhotoOnly(context: Context, enabled: Boolean) {
+    suspend fun setViewMode(context: Context, mode: LogViewMode) {
         context.dataStore.edit { preferences ->
-            preferences[KEY_PHOTO_ONLY] = enabled
+            preferences[KEY_VIEW_MODE] = mode.name
         }
     }
 }

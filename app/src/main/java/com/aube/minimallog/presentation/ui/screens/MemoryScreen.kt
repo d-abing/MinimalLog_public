@@ -23,6 +23,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -62,13 +63,17 @@ fun MemoryScreen(
     item?.let { item ->
 
         var showDeleteConfirm by rememberSaveable { mutableStateOf(false) }
-        DisposableEffect(item) {
+        SideEffect {
             onTopBarActionsChange(
                 MemoryTopBarActions(
                     onDelete = { showDeleteConfirm = true },
                     onEdit = { onEdit(item) },
+                    isFavorite = item.isFavorite,
+                    onToggleFavorite = { vm.onToggleFavorite(item) },
                 )
             )
+        }
+        DisposableEffect(Unit) {
             onDispose { onTopBarActionsChange(null) }
         }
         val configuration = LocalConfiguration.current
@@ -178,9 +183,14 @@ private fun FlowTagChips(tags: List<String>) {
             Box(
                 modifier = Modifier
                     .clip(RoundedCornerShape(50))
-                    .background(MaterialTheme.colorScheme.secondary)
-                    .padding(horizontal = 10.dp, vertical = 6.dp)
-            ) { Text(tag, style = MaterialTheme.typography.labelMedium) }
+                    .background(MaterialTheme.colorScheme.secondary.copy(alpha = 0.72f))
+                    .padding(horizontal = 10.dp, vertical = 6.dp),
+            ) {
+                Text(
+                    text = tag,
+                    style = MaterialTheme.typography.labelMedium,
+                )
+            }
         }
     }
 }

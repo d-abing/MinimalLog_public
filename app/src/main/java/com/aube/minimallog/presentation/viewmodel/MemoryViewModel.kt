@@ -15,6 +15,7 @@ import com.aube.minimallog.data.datastore.LogViewPrefs
 import com.aube.minimallog.presentation.model.MemoryDraft
 import com.aube.minimallog.presentation.model.MemoryItem
 import com.aube.minimallog.presentation.model.MemoryUiMapper
+import com.aube.minimallog.presentation.model.LogViewMode
 import com.aube.minimallog.presentation.ui.screens.SortOption
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -58,9 +59,9 @@ class MemoryViewModel @Inject constructor(
     private val _sort = MutableStateFlow(SortOption.NEW_FIRST)
     val sort: StateFlow<SortOption> = _sort
 
-    val photoOnly: StateFlow<Boolean> =
+    val logViewMode: StateFlow<LogViewMode> =
         LogViewPrefs.flow(context)
-            .stateIn(viewModelScope, SharingStarted.Eagerly, false)
+            .stateIn(viewModelScope, SharingStarted.Eagerly, LogViewMode.LIST)
 
     private val _events = Channel<Event>(Channel.BUFFERED)
     val events = _events.receiveAsFlow()
@@ -117,9 +118,14 @@ class MemoryViewModel @Inject constructor(
 
     fun onSortChange(s: SortOption) { _sort.value = s }
 
-    fun togglePhotoOnly() {
+    fun toggleLogViewMode() {
         viewModelScope.launch {
-            LogViewPrefs.setPhotoOnly(context, !photoOnly.value)
+            val nextMode = when (logViewMode.value) {
+                LogViewMode.LIST -> LogViewMode.GROUPED_GRID
+                LogViewMode.GROUPED_GRID -> LogViewMode.IMMERSIVE_GRID
+                LogViewMode.IMMERSIVE_GRID -> LogViewMode.LIST
+            }
+            LogViewPrefs.setViewMode(context, nextMode)
         }
     }
 
