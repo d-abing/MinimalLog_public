@@ -41,7 +41,8 @@
     <string name="text_delete_confirm_detail">この操作は取り消せません。</string>
     <string name="text_language">言語</string>
     <string name="text_privacy_policy">プライバシーポリシー</string>
-    <string name="text_privacy_policy_detail">プライバシーポリシーを開く</string>
+    <string name="text_privacy_policy_detail">プライバシーポリシーを見る</string>
+    <string name="text_privacy_policy_content">最終更新日: 2025年9月26日\n\n1. 収集・アクセスするデータ\nミニマルログは以下のデータにアクセスまたは処理する場合があります。\n\n• アプリ内データ: メモ、タグ、画像など、ユーザーが入力したデータで、端末内に保存されます。\n• Google サインイン（任意）: ログイン識別のために Google アカウントのメールアドレスを使用します。\n• Google Drive appDataFolder（任意）: バックアップと復元のためにのみアクセスします。\n• 広告・分析: Google AdMob または Google Analytics を通じて、広告 ID（AAID）、利用統計、クラッシュ・エラーログが処理される場合があります。\n\n2. データの利用目的\nアプリ内データは保存・表示・整理機能の提供にのみ使用されます。Google アカウント情報と Drive へのアクセスは、ユーザー識別およびユーザーが要求したバックアップと復元にのみ使用されます。広告・分析データは広告配信、パフォーマンス測定、安定性向上に使用されます。\n\n3. データの第三者提供\nミニマルログは Google ユーザーデータを第三者に販売または提供しません。Google AdMob または Google Analytics が処理する情報には Google のポリシーが適用されます。\n\n4. データの保存と保護\nローカルデータは Android のサンドボックス領域に保存されます。バックアップはユーザーの Google Drive appDataFolder に保存され、Google の認証と暗号化で保護されます。ネットワーク通信には HTTPS を使用します。\n\n5. データの保存期間と削除\nローカルデータはアプリのアンインストールまたはデータの初期化時に削除されます。Google Drive のバックアップは Google Drive またはアプリが提供する機能から削除できます。広告・分析ログは Google のポリシーに従って保存・削除されます。aube.team@gmail.com への削除依頼は30日以内に処理します。\n\n6. ユーザーの権利\nユーザーはいつでもローカルデータとバックアップを管理または削除できます。広告のパーソナライズと分析設定は Google アカウントまたは端末設定から管理できます。\n\n7. お問い合わせ\n本ポリシーに関するお問い合わせは aube.team@gmail.com までご連絡ください。</string>
     <string name="text_google_drive">Google ドライブ</string>
     <string name="text_status_connected">ステータス：接続済み</string>
     <string name="text_status_not_connected">ステータス：未接続</string>

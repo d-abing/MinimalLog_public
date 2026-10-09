@@ -41,7 +41,8 @@
     <string name="text_delete_confirm_detail">되돌릴 수 없습니다.</string>
     <string name="text_language">언어</string>
     <string name="text_privacy_policy">개인정보처리방침</string>
-    <string name="text_privacy_policy_detail">개인정보처리방침 열기</string>
+    <string name="text_privacy_policy_detail">개인정보처리방침 보기</string>
+    <string name="text_privacy_policy_content">최종 수정일: 2025년 9월 26일\n\n1. 수집 및 접근하는 데이터\n미니멀로그는 다음 데이터에 접근하거나 이를 처리할 수 있습니다.\n\n• 앱 내 기록: 메모, 태그, 이미지 등 사용자가 입력한 데이터이며 기기 내부에 저장됩니다.\n• Google 로그인(선택): 로그인 식별을 위해 Google 계정 이메일을 사용합니다.\n• Google Drive appDataFolder(선택): 백업 및 복원 목적으로만 접근합니다.\n• 광고 및 분석: Google AdMob 또는 Google Analytics를 통해 광고 ID(AAID), 앱 사용 통계, 오류 로그가 처리될 수 있습니다.\n\n2. 개인정보의 이용 목적\n앱 내 기록은 저장·조회·정리 기능을 제공하는 데에만 사용됩니다. Google 계정 정보와 Drive 접근 권한은 사용자 식별과 사용자가 요청한 백업 및 복원에만 사용됩니다. 광고 및 분석 데이터는 광고 제공, 성능 측정, 앱 안정성 개선을 위해 사용됩니다.\n\n3. 개인정보의 제3자 제공\n미니멀로그는 Google 사용자 데이터를 제3자에게 판매하거나 제공하지 않습니다. Google AdMob 또는 Google Analytics가 처리하는 정보에는 Google의 정책이 적용됩니다.\n\n4. 개인정보의 저장 및 보호\n로컬 데이터는 Android 샌드박스 영역에 저장됩니다. 백업은 사용자의 Google Drive appDataFolder에 저장되며 Google 인증과 암호화로 보호됩니다. 네트워크 통신에는 HTTPS를 사용합니다.\n\n5. 개인정보의 보관 및 삭제\n로컬 데이터는 앱을 삭제하거나 앱 데이터를 초기화하면 함께 삭제됩니다. Google Drive 백업은 Google Drive 또는 앱이 제공하는 기능을 통해 삭제할 수 있습니다. 광고 및 분석 로그는 Google 정책에 따라 보관 및 삭제됩니다. aube.team@gmail.com으로 데이터 삭제를 요청하면 30일 이내에 처리합니다.\n\n6. 이용자의 권리\n사용자는 언제든지 로컬 데이터와 백업을 관리하거나 삭제할 수 있습니다. 광고 맞춤 설정 및 분석 설정은 Google 계정 또는 기기 설정에서 관리할 수 있습니다.\n\n7. 문의처\n개인정보처리방침에 관한 문의는 aube.team@gmail.com으로 연락해 주세요.</string>
     <string name="text_google_drive">Google 드라이브</string>
     <string name="text_status_connected">상태: 연결됨</string>
     <string name="text_status_not_connected">상태: 연결되지 않음</string>

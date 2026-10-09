@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
@@ -489,6 +490,7 @@ private fun MemoryRow(
                         item.tags.take(4).forEach { tag ->
                             Box(
                                 modifier = Modifier
+                                    .widthIn(max = 88.dp)
                                     .clip(RoundedCornerShape(50))
                                     .background(MaterialTheme.colorScheme.secondary)
                                     .padding(horizontal = 8.dp, vertical = 2.dp),
@@ -496,6 +498,9 @@ private fun MemoryRow(
                                 Text(
                                     text = tag,
                                     style = MaterialTheme.typography.labelSmall,
+                                    maxLines = 1,
+                                    softWrap = false,
+                                    overflow = TextOverflow.Ellipsis,
                                 )
                             }
                         }

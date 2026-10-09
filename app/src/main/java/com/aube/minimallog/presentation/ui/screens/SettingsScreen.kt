@@ -1,8 +1,6 @@
 package com.aube.minimallog.presentation.ui.screens
 
 import android.content.Context
-import android.content.Intent
-import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
@@ -74,6 +72,7 @@ fun SettingsScreen(
     val currentLanguage by vm.currentLanguage.collectAsState()
     var showBackupDialog by rememberSaveable { mutableStateOf(false) }
     var showRestoreDialog by rememberSaveable { mutableStateOf(false) }
+    var showPrivacyPolicy by rememberSaveable { mutableStateOf(false) }
 
     val signInLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.StartActivityForResult()
@@ -127,12 +126,7 @@ fun SettingsScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .clip(RoundedCornerShape(12.dp))
-                    .clickable {
-                        val intent = Intent(Intent.ACTION_VIEW,
-                            Uri.parse("https://aubecompany.blogspot.com/2025/09/privacy-policy-for-minimallog.html")
-                        )
-                        context.startActivity(intent)
-                    }
+                    .clickable { showPrivacyPolicy = true }
                     .background(MaterialTheme.colorScheme.primaryContainer)
                     .padding(12.dp),
                 verticalAlignment = Alignment.CenterVertically
@@ -157,6 +151,38 @@ fun SettingsScreen(
                 onDisconnect = { vm.disconnect(context) },
             )
         }
+    }
+
+    if (showPrivacyPolicy) {
+        AlertDialog(
+            onDismissRequest = { showPrivacyPolicy = false },
+            shape = RoundedCornerShape(24.dp),
+            containerColor = MaterialTheme.colorScheme.primaryContainer,
+            titleContentColor = MaterialTheme.colorScheme.onSecondary,
+            textContentColor = MaterialTheme.colorScheme.onSecondary,
+            title = {
+                Text(
+                    text = stringResource(R.string.text_privacy_policy),
+                    fontWeight = FontWeight.SemiBold
+                )
+            },
+            text = {
+                Text(
+                    text = stringResource(R.string.text_privacy_policy_content),
+                    style = MaterialTheme.typography.bodySmall,
+                    modifier = Modifier.verticalScroll(rememberScrollState())
+                )
+            },
+            confirmButton = {
+                TextButton(onClick = { showPrivacyPolicy = false }) {
+                    Text(
+                        text = stringResource(R.string.action_confirm),
+                        color = MaterialTheme.colorScheme.primary,
+                        fontWeight = FontWeight.SemiBold
+                    )
+                }
+            }
+        )
     }
 
     if (showBackupDialog) {
